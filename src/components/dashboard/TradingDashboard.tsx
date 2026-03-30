@@ -140,8 +140,12 @@ export function TradingDashboard() {
   const price = marketData[0]?.currentPrice || 0;
   const time = marketData[0]?.time || "";
 
-  // Error or no analysis: show "We'll be back soon" — NEVER show old/fake data
-  if (error || (!analysis && !loading)) {
+  // Check if analysis is stale (older than 10 minutes) — never show old data to traders
+  const isStale = lastUpdate ? (Date.now() - lastUpdate.getTime() > 10 * 60 * 1000) : false;
+  const safeAnalysis = isStale ? null : displayAnalysis;
+
+  // Error, stale, or no analysis: show "We'll be back soon" — NEVER show old/fake data
+  if (error || (!safeAnalysis && !loading)) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-background overflow-hidden">
         <DashboardHeader price={price} time={time} loading={false} />
