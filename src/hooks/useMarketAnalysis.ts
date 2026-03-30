@@ -81,14 +81,15 @@ export function useMarketAnalysis() {
   useEffect(() => {
     const interval = setInterval(() => {
       fetchData();
-      // Show "analyzing" indicator ~10s before next analysis
-      if (nextAnalysis) {
-        const diff = nextAnalysis.getTime() - Date.now();
-        if (diff <= 10000 && diff > -30000) {
-          setAnalyzing(true);
-        }
+      if (!nextAnalysis) {
+        setAnalyzing(false);
+        return;
       }
+
+      const diff = nextAnalysis.getTime() - Date.now();
+      setAnalyzing(diff <= 10000 && diff > 0);
     }, 1000);
+
     return () => clearInterval(interval);
   }, [fetchData, nextAnalysis]);
 
