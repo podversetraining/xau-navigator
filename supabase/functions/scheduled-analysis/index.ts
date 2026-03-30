@@ -113,7 +113,7 @@ serve(async (req) => {
 
   try {
     // Fetch market data from the published app
-    const APP_URL = Deno.env.get("APP_URL") || "https://id-preview--f24df3d3-4ed9-4e23-a824-77d960876447.lovable.app";
+    const APP_URL = Deno.env.get("APP_URL") || "https://f24df3d3-4ed9-4e23-a824-77d960876447.lovableproject.com";
     const dataRes = await fetch(`${APP_URL}/data/XAUUSDm_Complete_Data.txt?t=${Date.now()}`);
     if (!dataRes.ok) throw new Error("Failed to fetch market data from app");
     const rawData = await dataRes.text();
