@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import type { AnalysisResult } from "@/types/analysis";
 import type { TimeframeData } from "@/lib/parseData";
+import { sanitizeAiText, isValidAiText } from "@/lib/sanitizeAi";
 
 function Gauge({ value, max, label, size = 100 }: { value: number; max: number; label: string; size?: number }) {
   const pct = Math.min((value / max) * 100, 100);
@@ -69,7 +70,7 @@ export function SlideTrendAnalysis({ analysis, data }: { analysis: AnalysisResul
               <IndicatorCard label="SMA 200" value={d1.sma200.toFixed(2)} status={d1.currentPrice > d1.sma200 ? "bullish" : "bearish"} />
             </div>
           )}
-          <p className="text-xs text-dim mt-3 font-data">{layer.emaOrder}</p>
+          {isValidAiText(layer.emaOrder) && <p className="text-xs text-dim mt-3 font-data">{layer.emaOrder}</p>}
         </div>
 
         {/* Trend Indicators */}
@@ -100,7 +101,7 @@ export function SlideTrendAnalysis({ analysis, data }: { analysis: AnalysisResul
               </>
             )}
           </div>
-          <p className="text-xs text-dim mt-3 font-data">{layer.summary}</p>
+          {isValidAiText(layer.summary) && <p className="text-xs text-dim mt-3 font-data">{layer.summary}</p>}
         </div>
       </div>
     </div>

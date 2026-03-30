@@ -1,5 +1,6 @@
 import type { AnalysisResult } from "@/types/analysis";
 import type { TimeframeData } from "@/lib/parseData";
+import { isValidAiText } from "@/lib/sanitizeAi";
 
 function LevelRow({ label, value, current, type }: { label: string; value: number; current: number; type: "resistance" | "support" | "neutral" }) {
   const dist = value - current;
@@ -114,7 +115,7 @@ export function SlideEntryPoint({ analysis, data }: { analysis: AnalysisResult; 
               </div>
             </div>
           )}
-          <p className="text-xs text-dim mt-3 font-data">{layer.summary}</p>
+          {isValidAiText(layer.summary) && <p className="text-xs text-dim mt-3 font-data">{layer.summary}</p>}
         </div>
       </div>
     </div>

@@ -1,14 +1,9 @@
 import { motion } from "framer-motion";
 import type { AnalysisResult } from "@/types/analysis";
+import { isValidAiText } from "@/lib/sanitizeAi";
 
 function isValidNumber(v: unknown): v is number {
   return typeof v === "number" && !isNaN(v) && v > 0;
-}
-
-function isValidStr(v: unknown): v is string {
-  if (typeof v !== "string") return false;
-  const lower = v.toLowerCase().trim();
-  return lower.length > 0 && !lower.includes("invalid") && !lower.includes("unknown") && !lower.includes("cannot determine") && lower !== "—" && lower !== "-";
 }
 
 export function SlideTradeSetup({ analysis }: { analysis: AnalysisResult }) {
@@ -102,9 +97,9 @@ export function SlideTradeSetup({ analysis }: { analysis: AnalysisResult }) {
           <div className="glass-panel rounded-lg p-5 gold-border-glow">
             <h3 className="font-display text-xs tracking-widest text-gold mb-3">POSITION MANAGEMENT</h3>
             <div className="flex flex-col gap-3">
-              <ManagementStep step={1} action={isValidStr(analysis.management?.tp1Action) ? analysis.management.tp1Action : "At TP1: Close 40%, move SL to entry"} />
-              <ManagementStep step={2} action={isValidStr(analysis.management?.tp2Action) ? analysis.management.tp2Action : "At TP2: Close 30%, move SL to TP1"} />
-              <ManagementStep step={3} action={isValidStr(analysis.management?.tp3Action) ? analysis.management.tp3Action : "TP3: Trail with ATR stop"} />
+              <ManagementStep step={1} action={isValidAiText(analysis.management?.tp1Action) ? analysis.management.tp1Action : "At TP1: Close 40%, move SL to entry"} />
+              <ManagementStep step={2} action={isValidAiText(analysis.management?.tp2Action) ? analysis.management.tp2Action : "At TP2: Close 30%, move SL to TP1"} />
+              <ManagementStep step={3} action={isValidAiText(analysis.management?.tp3Action) ? analysis.management.tp3Action : "TP3: Trail with ATR stop"} />
             </div>
           </div>
 
@@ -119,17 +114,17 @@ export function SlideTradeSetup({ analysis }: { analysis: AnalysisResult }) {
             <p className="text-xs text-dim mt-3 font-data">Lot calculation: 0.01 lot per $1,000 account balance (fixed risk management rule)</p>
           </div>
 
-          {(isValidStr(analysis.failureScenario?.invalidation) || isValidStr(analysis.failureScenario?.reverseLevel)) && (
+          {(isValidAiText(analysis.failureScenario?.invalidation) || isValidAiText(analysis.failureScenario?.reverseLevel)) && (
             <div className="glass-panel rounded-lg p-5 gold-border-glow">
               <h3 className="font-display text-xs tracking-widest text-bearish mb-3">⚠ FAILURE SCENARIO</h3>
               <div className="flex flex-col gap-2 text-sm font-data">
-                {isValidStr(analysis.failureScenario?.invalidation) && (
+                {isValidAiText(analysis.failureScenario?.invalidation) && (
                   <div><span className="text-dim">Invalidation: </span><span className="text-foreground">{analysis.failureScenario.invalidation}</span></div>
                 )}
-                {isValidStr(analysis.failureScenario?.reverseLevel) && (
+                {isValidAiText(analysis.failureScenario?.reverseLevel) && (
                   <div><span className="text-dim">Reverse Level: </span><span className="text-foreground">{analysis.failureScenario.reverseLevel}</span></div>
                 )}
-                {isValidStr(analysis.failureScenario?.reverseOpportunity) && (
+                {isValidAiText(analysis.failureScenario?.reverseOpportunity) && (
                   <div><span className="text-dim">Reverse Trade: </span><span className="text-foreground">{analysis.failureScenario.reverseOpportunity}</span></div>
                 )}
               </div>
