@@ -48,19 +48,24 @@ export function TradingDashboard() {
     return () => clearInterval(timer);
   }, [nextAnalysis]);
 
-  // Smooth progress bar for analysis
+  // When analysis starts: show update screen, reset slides
   useEffect(() => {
-    if (analyzing && !showAnalyzing) {
+    if (analyzing) {
       setShowAnalyzing(true);
       setAnalyzeProgress(0);
+      setCurrentSlide(0);
+      setProgress(0);
     }
+  }, [analyzing]);
+
+  // When analysis finishes: show 100% briefly then hide
+  useEffect(() => {
     if (!analyzing && showAnalyzing) {
-      // Analysis finished — show 100% briefly then hide
       setAnalyzeProgress(100);
       const timer = setTimeout(() => {
         setShowAnalyzing(false);
         setAnalyzeProgress(0);
-      }, 2000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, [analyzing, showAnalyzing]);
@@ -72,6 +77,7 @@ export function TradingDashboard() {
       setAnalyzeProgress(prev => {
         if (prev >= 90) return Math.min(prev + 0.1, 92);
         if (prev >= 70) return prev + 0.5;
+        if (prev >= 40) return prev + 1;
         return prev + 2;
       });
     }, 300);
