@@ -148,7 +148,6 @@ export function TradingDashboard() {
   if (error || (!safeAnalysis && !loading)) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-background overflow-hidden">
-        <DashboardHeader price={price} time={time} loading={false} />
         <div className="flex-1 flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
