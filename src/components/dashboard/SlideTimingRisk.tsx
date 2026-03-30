@@ -27,9 +27,9 @@ function getMarketTiming(data: TimeframeData[], analysis: AnalysisResult) {
 
   const rawTimestamp = source?.time || source?.currentCandle?.time || source?.lastCandle?.time || (isValidStr(analysis.timing?.dataTime) ? analysis.timing.dataTime : "");
   const parsedTimestamp = isValidStr(rawTimestamp) ? parseMarketTimestamp(rawTimestamp) : null;
-  // Server time is GMT+0 — convert to Gulf Time (UTC+3) for session display
+  // Server time is GMT+0 — convert to Dubai Time (UTC+4) for session display
   const gmtHour = parsedTimestamp?.getHours() ?? -1;
-  const gulfHour = gmtHour >= 0 ? (gmtHour + 3) % 24 : -1;
+  const dubaiHour = gmtHour >= 0 ? (gmtHour + 4) % 24 : -1;
   const day = parsedTimestamp?.getDay() ?? -1;
 
   // Sessions in Gulf Time (UTC+3)
