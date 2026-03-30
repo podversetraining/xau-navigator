@@ -223,6 +223,7 @@ export function useMarketAnalysis() {
     error,
     rawData,
     analyzing,
+    runningAnalysis,
     nextAnalysis,
     runAnalysis,
   };
