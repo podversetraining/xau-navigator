@@ -37,9 +37,11 @@ export function TradingDashboard() {
   const [progress, setProgress] = useState(0);
   const [showAnalyzing, setShowAnalyzing] = useState(false);
   const [analyzeProgress, setAnalyzeProgress] = useState(0);
-  // Holds only the confirmed analysis currently allowed to render
-  const [displayAnalysis, setDisplayAnalysis] = useState(analysis ?? null);
-  const [analysisVersionAtStart, setAnalysisVersionAtStart] = useState<string | null>(null);
+  const [displayAnalysis, setDisplayAnalysis] = useState<typeof analysis>(null);
+  // Track the lastUpdate timestamp that was active when analysis started
+  const [versionAtStart, setVersionAtStart] = useState<string>("none");
+  // If analysis failed, block old data from re-appearing
+  const [analysisFailed, setAnalysisFailed] = useState(false);
 
   // Countdown to next analysis
   useEffect(() => {
@@ -53,57 +55,58 @@ export function TradingDashboard() {
     return () => clearInterval(timer);
   }, [nextAnalysis]);
 
-  // When analysis API call starts: show update screen and hard-clear any previous analysis
+  // When analysis starts → hard-clear everything
   useEffect(() => {
     if (runningAnalysis) {
       setDisplayAnalysis(null);
       setShowAnalyzing(true);
       setAnalyzeProgress(0);
-      setAnalysisVersionAtStart(lastUpdate?.toISOString() || "none");
+      setAnalysisFailed(false);
+      setVersionAtStart(lastUpdate?.toISOString() || "none");
     }
-  }, [runningAnalysis, lastUpdate]);
+  }, [runningAnalysis]);
 
-  // When analysis API call finishes: wait for NEW data, then swap atomically
+  // When analysis finishes → check result
   useEffect(() => {
-    if (!runningAnalysis && showAnalyzing) {
-      if (analysis) {
-        const currentVersion = lastUpdate?.toISOString() || "none";
-        const hasNewData = currentVersion !== analysisVersionAtStart;
-
-        if (hasNewData) {
-          setAnalyzeProgress(100);
-          const timer = setTimeout(() => {
-            setDisplayAnalysis(analysis);
-            setCurrentSlide(0);
-            setProgress(0);
-            setShowAnalyzing(false);
-            setAnalyzeProgress(0);
-          }, 2500);
-          return () => clearTimeout(timer);
-        }
-      }
-
-      // API finished but no new data (rate limit / error) — clear old data, show waiting screen
-      const fallbackTimer = setTimeout(() => {
-        setDisplayAnalysis(null);
-        setShowAnalyzing(false);
-        setAnalyzeProgress(0);
-      }, 1500);
-      return () => clearTimeout(fallbackTimer);
-    }
-  }, [runningAnalysis, showAnalyzing, analysis, lastUpdate, analysisVersionAtStart]);
-
-  // Sync only genuinely new analysis versions — never repopulate a cleared stale version
-  useEffect(() => {
-    if (showAnalyzing || runningAnalysis || !analysis) return;
+    if (runningAnalysis || !showAnalyzing) return;
 
     const currentVersion = lastUpdate?.toISOString() || "none";
-    const isBlockedOldVersion = currentVersion === analysisVersionAtStart;
+    const isNew = currentVersion !== versionAtStart && analysis;
 
-    if (!isBlockedOldVersion) {
-      setDisplayAnalysis(analysis);
+    if (isNew) {
+      // Success: new data arrived
+      setAnalyzeProgress(100);
+      const timer = setTimeout(() => {
+        setDisplayAnalysis(analysis);
+        setAnalysisFailed(false);
+        setCurrentSlide(0);
+        setProgress(0);
+        setShowAnalyzing(false);
+        setAnalyzeProgress(0);
+      }, 2500);
+      return () => clearTimeout(timer);
     }
-  }, [analysis, lastUpdate, showAnalyzing, runningAnalysis, analysisVersionAtStart]);
+
+    // Failed: no new data — show maintenance screen
+    const fallbackTimer = setTimeout(() => {
+      setDisplayAnalysis(null);
+      setAnalysisFailed(true);
+      setShowAnalyzing(false);
+      setAnalyzeProgress(0);
+    }, 1500);
+    return () => clearTimeout(fallbackTimer);
+  }, [runningAnalysis, showAnalyzing, analysis, lastUpdate, versionAtStart]);
+
+  // Sync new analysis from realtime (not during active update cycle)
+  useEffect(() => {
+    if (showAnalyzing || runningAnalysis || !analysis || !lastUpdate) return;
+    const currentVersion = lastUpdate.toISOString();
+    // Only accept if it's genuinely newer than what we had at cycle start
+    if (currentVersion !== versionAtStart) {
+      setDisplayAnalysis(analysis);
+      setAnalysisFailed(false);
+    }
+  }, [analysis, lastUpdate]);
 
   // Animate progress while API is running
   useEffect(() => {
@@ -150,7 +153,7 @@ export function TradingDashboard() {
   const safeAnalysis = isStale ? null : displayAnalysis;
 
   // Error, stale, or no analysis: show "We'll be back soon" — NEVER show old/fake data
-  if (error || (!safeAnalysis && !loading)) {
+  if (error || analysisFailed || (!safeAnalysis && !loading)) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-background overflow-hidden">
         <div className="flex-1 flex items-center justify-center">

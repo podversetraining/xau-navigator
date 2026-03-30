@@ -135,7 +135,7 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "anthropic/claude-opus-4",
+          model: "openai/gpt-5",
           messages: [
             {
               role: "system",
