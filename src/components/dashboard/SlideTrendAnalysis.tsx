@@ -101,7 +101,7 @@ export function SlideTrendAnalysis({ analysis, data }: { analysis: AnalysisResul
               </>
             )}
           </div>
-          <p className="text-xs text-dim mt-3 font-data">{layer.summary}</p>
+          {isValidAiText(layer.summary) && <p className="text-xs text-dim mt-3 font-data">{layer.summary}</p>}
         </div>
       </div>
     </div>

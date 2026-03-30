@@ -115,7 +115,7 @@ export function SlideEntryPoint({ analysis, data }: { analysis: AnalysisResult; 
               </div>
             </div>
           )}
-          <p className="text-xs text-dim mt-3 font-data">{layer.summary}</p>
+          {isValidAiText(layer.summary) && <p className="text-xs text-dim mt-3 font-data">{layer.summary}</p>}
         </div>
       </div>
     </div>

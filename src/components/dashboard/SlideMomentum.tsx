@@ -75,18 +75,24 @@ export function SlideMomentum({ analysis, data }: { analysis: AnalysisResult; da
         ))}
       </div>
 
-      <div className="glass-panel rounded-lg p-4 gold-border-glow">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <h4 className="text-xs text-gold font-display tracking-widest mb-1">DIVERGENCE CHECK</h4>
-            <p className="text-sm text-foreground font-data">{layer.divergence || "No significant divergence detected"}</p>
-          </div>
-          <div>
-            <h4 className="text-xs text-gold font-display tracking-widest mb-1">MOMENTUM SUMMARY</h4>
-            <p className="text-sm text-foreground font-data">{layer.summary}</p>
+      {(isValidAiText(layer.divergence) || isValidAiText(layer.summary)) && (
+        <div className="glass-panel rounded-lg p-4 gold-border-glow">
+          <div className="grid grid-cols-2 gap-4">
+            {isValidAiText(layer.divergence) && (
+              <div>
+                <h4 className="text-xs text-gold font-display tracking-widest mb-1">DIVERGENCE CHECK</h4>
+                <p className="text-sm text-foreground font-data">{layer.divergence}</p>
+              </div>
+            )}
+            {isValidAiText(layer.summary) && (
+              <div>
+                <h4 className="text-xs text-gold font-display tracking-widest mb-1">MOMENTUM SUMMARY</h4>
+                <p className="text-sm text-foreground font-data">{layer.summary}</p>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
