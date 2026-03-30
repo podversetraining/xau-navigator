@@ -78,7 +78,7 @@ export function SlideOverview({ analysis, data }: { analysis: AnalysisResult; da
             <Row label="TP3 (30%)" value={analysis.tp3.toFixed(2)} bullish />
             <div className="border-t border-border pt-2 mt-1">
               <Row label="Risk/Reward" value={`1:${analysis.riskReward.toFixed(1)}`} accent />
-              <Row label="Lot Size" value={analysis.lotSize.toFixed(2)} />
+              <Row label="Lot Size" value="0.01 / $1,000" />
             </div>
           </div>
         </div>
