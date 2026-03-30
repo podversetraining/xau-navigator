@@ -1,0 +1,1039 @@
+--- Timeframe: PERIOD_D1 ---
+Pair: XAUUSDm
+Current Price: 4537.51
+Time: 2026.03.30 11:20
+EMA_8: 4531.85
+EMA_21: 4713.72
+EMA_50: 4820.64
+RSI: 38.886
+ADX_Main: 46.3020
+ADX_Plus: 11.0712
+ADX_Minus: 22.7083
+MACD: -162.753
+MACD_Signal: -145.224
+ATR: 176.912
+BB_UPPER: 5351.84
+BB_MID: 4774.67
+BB_LOWER: 4197.49
+Volume: 211325
+current candle:
+open : 4448.73
+high : 4550.53
+low : 4418.50
+close : 4537.51
+volume : 211325
+time : 2026.03.30 00:00
+last complete candle:
+open : 4511.70
+high : 4514.06
+low : 4443.75
+close : 4448.57
+volume : 33683
+time : 2026.03.29 00:00
+Resistance 3 (R3) : 4564.15
+Resistance 2 (R2) : 4539.10
+Resistance 1 (R1) : 4493.83
+Pivot Point : 4468.79
+Support 1 (S1) : 4423.52
+Support 2 (S2) : 4398.48
+Support 3 (S3) : 4353.21
+EMA_100: 4699.53
+EMA_200: 4363.56
+SMA_20: 4774.67
+SMA_50: 4943.41
+SMA_200: 4290.56
+WMA_21: 4643.97
+RSI_21: 41.16
+RSI_9: 39.54
+MACD_Fast: -110.17
+MACD_Fast_Signal: -173.00
+MACD_Histogram: -17.53
+Stoch_K_14: 38.65
+Stoch_D_14: 34.65
+Williams_R: -53.58
+CCI_20: -65.03
+Momentum_14: 90.38
+DeMarker: 0.12
+ATR_21: 158.63
+BB_Upper_15: 5007.46
+BB_Middle_15: 4656.60
+BB_Lower_15: 4305.74
+BB_Width_20: 24.18
+Envelopes_Upper: 4769.89
+PSAR: 4555.42
+=== Additional Trend Indicators ===
+SuperTrend_Upper: 5015.25
+SuperTrend_Lower: 3953.78
+SuperTrend_Value: 3953.78
+SuperTrend_Direction: UP
+Aroon_Up: 4.00
+Aroon_Down: 76.00
+Aroon_Oscillator: -72.00
+Vortex_Plus: 0.7613
+Vortex_Minus: 1.2333
+Vortex_Diff: -0.4719
+TRIX: -46.2472
+Keltner_Upper: 5067.54
+Keltner_Middle: 4713.72
+Keltner_Lower: 4359.89
+Keltner_Width: 15.01
+Fractal_Up_Signal: TRUE
+Fractal_Up_Value: 4602.46
+Fractal_Down_Signal: FALSE
+Alligator_Jaw: 5006.23
+Alligator_Teeth: 4782.88
+Alligator_Lips: 4596.60
+Alligator_State: EATING_DOWN
+ADXR: 32.53
+Trend_Strength_Index: -36.84
+Trend_Classification: WEAK_DOWNTREND
+=== Fibonacci Golden Ratios Analysis ===
+Swing_High: 5419.14 (Bars_Ago: 24)
+Swing_Low: 4098.36 (Bars_Ago: 6)
+Fib_Range: 1320.78
+Trend_Direction: DOWNTREND
+--- Fibonacci Retracement Levels ---
+Fib_0%: 4098.36 (Distance: 43915.2 pips)
+Fib_23.6%: 4410.06 (Distance: 12744.7 pips)
+Fib_38.2%: 4602.90 (Distance: 6538.7 pips)
+Fib_50%: 4758.75 (Distance: 22123.9 pips)
+Fib_61.8%: 4914.60 (Distance: 37709.1 pips)
+Fib_76.4%: 5107.43 (Distance: 56992.5 pips)
+Fib_100%: 5419.14 (Distance: 88163.0 pips)
+--- Fibonacci Extension Levels ---
+Fib_Ext_127.2%: 3739.10 (Distance: 79840.5 pips)
+Fib_Ext_141.4%: 3551.55 (Distance: 98595.6 pips)
+Fib_Ext_161.8%: 3282.11 (Distance: 125539.5 pips)
+Fib_Ext_200%: 2777.57 (Distance: 175993.4 pips)
+Fib_Ext_261.8%: 1961.33 (Distance: 257617.7 pips)
+Fib_Ext_361.8%: 640.55 (Distance: 389695.9 pips)
+Fib_Ext_423.6%: -175.69 (Distance: 471320.3 pips)
+--- Golden Ratio Analysis ---
+Price_Position_in_Range: 33.25%
+Closest_Fib_Level: 38.2%
+Distance_to_Closest: 4.95%
+--- Fibonacci Confluence Analysis ---
+--- Fibonacci Time Analysis ---
+Fib_Time_1: 18 periods from swing point
+Fib_Time_2: 36 periods from swing point
+Fib_Time_3: 54 periods from swing point
+Fib_Time_5: 90 periods from swing point
+Fib_Time_8: 144 periods from swing point
+Fib_Time_13: 234 periods from swing point
+Fib_Time_21: 378 periods from swing point
+Fib_Time_34: 612 periods from swing point
+Golden_Spiral_Target_Up: 7341.84
+Golden_Spiral_Target_Down: 2804.33
+--- Fibonacci Fan Lines ---
+Fib_Fan_38.2%_Slope: 28.03
+Fib_Fan_50%_Slope: 36.69
+Fib_Fan_61.8%_Slope: 45.35
+MFI_14: 36.41
+Volume_Avg_20: 448332
+Relative_Volume: 0.47
+Volume_ROC: 527.39
+Tenkan_Sen: 4417.07
+Kijun_Sen: 4758.75
+Senkou_A: 4587.91
+Senkou_B: 4846.86
+Chikou_Span: 4537.51
+Cloud_Position: BELOW_CLOUD
+Cloud_Top: 4846.86
+Cloud_Bottom: 4587.91
+ROC_12: -9.48
+Channel_High_20: 5238.51
+Channel_Low_20: 4098.36
+Channel_Position: 38.52
+Volatility_Ratio: 1.18
+
+--- Timeframe: PERIOD_H4 ---
+Pair: XAUUSDm
+Current Price: 4537.51
+Time: 2026.03.30 11:20
+EMA_8: 4497.87
+EMA_21: 4487.44
+EMA_50: 4570.49
+RSI: 54.050
+ADX_Main: 14.4302
+ADX_Plus: 16.3858
+ADX_Minus: 16.3452
+MACD: -5.864
+MACD_Signal: -23.754
+ATR: 64.341
+BB_UPPER: 4591.74
+BB_MID: 4480.70
+BB_LOWER: 4369.65
+Volume: 40562
+current candle:
+open : 4527.08
+high : 4545.43
+low : 4523.72
+close : 4537.51
+volume : 40562
+time : 2026.03.30 08:00
+last complete candle:
+open : 4496.01
+high : 4550.53
+low : 4486.07
+close : 4527.14
+volume : 62017
+time : 2026.03.30 04:00
+Resistance 3 (R3) : 4620.89
+Resistance 2 (R2) : 4585.71
+Resistance 1 (R1) : 4556.42
+Pivot Point : 4521.24
+Support 1 (S1) : 4491.96
+Support 2 (S2) : 4456.78
+Support 3 (S3) : 4427.49
+EMA_100: 4720.51
+EMA_200: 4831.59
+SMA_20: 4480.70
+SMA_50: 4523.41
+SMA_200: 4958.03
+WMA_21: 4478.21
+RSI_21: 49.94
+RSI_9: 59.06
+MACD_Fast: 21.95
+MACD_Fast_Signal: 4.67
+MACD_Histogram: 17.89
+Stoch_K_14: 82.81
+Stoch_D_14: 70.96
+Williams_R: -8.76
+CCI_20: 83.40
+Momentum_14: 101.90
+DeMarker: 0.56
+ATR_21: 64.42
+BB_Upper_15: 4536.17
+BB_Middle_15: 4462.06
+BB_Lower_15: 4387.95
+BB_Width_20: 4.96
+Envelopes_Upper: 4476.22
+PSAR: 4354.94
+=== Additional Trend Indicators ===
+SuperTrend_Upper: 4727.60
+SuperTrend_Lower: 4341.55
+SuperTrend_Value: 4341.55
+SuperTrend_Direction: UP
+Aroon_Up: 16.00
+Aroon_Down: 60.00
+Aroon_Oscillator: -44.00
+Vortex_Plus: 1.1199
+Vortex_Minus: 0.9763
+Vortex_Diff: 0.1436
+TRIX: -4.4247
+Keltner_Upper: 4616.12
+Keltner_Middle: 4487.44
+Keltner_Lower: 4358.76
+Keltner_Width: 5.74
+Fractal_Up_Signal: FALSE
+Fractal_Down_Signal: TRUE
+Fractal_Down_Value: 4418.50
+Alligator_Jaw: 4489.30
+Alligator_Teeth: 4464.13
+Alligator_Lips: 4471.99
+Alligator_State: AWAKENING
+ADXR: 19.80
+Trend_Strength_Index: -5.26
+Trend_Classification: SIDEWAYS
+=== Fibonacci Golden Ratios Analysis ===
+Swing_High: 4932.42 (Bars_Ago: 49)
+Swing_Low: 4098.36 (Bars_Ago: 32)
+Fib_Range: 834.06
+Trend_Direction: DOWNTREND
+--- Fibonacci Retracement Levels ---
+Fib_0%: 4098.36 (Distance: 43915.2 pips)
+Fib_23.6%: 4295.20 (Distance: 24231.3 pips)
+Fib_38.2%: 4416.97 (Distance: 12054.0 pips)
+Fib_50%: 4515.39 (Distance: 2212.1 pips)
+Fib_61.8%: 4613.81 (Distance: 7629.8 pips)
+Fib_76.4%: 4735.58 (Distance: 19807.1 pips)
+Fib_100%: 4932.42 (Distance: 39491.0 pips)
+--- Fibonacci Extension Levels ---
+Fib_Ext_127.2%: 3871.49 (Distance: 66601.7 pips)
+Fib_Ext_141.4%: 3753.06 (Distance: 78445.4 pips)
+Fib_Ext_161.8%: 3582.91 (Distance: 95460.2 pips)
+Fib_Ext_200%: 3264.30 (Distance: 127321.4 pips)
+Fib_Ext_261.8%: 2748.84 (Distance: 178866.4 pips)
+Fib_Ext_361.8%: 1914.78 (Distance: 262272.6 pips)
+Fib_Ext_423.6%: 1399.33 (Distance: 313817.7 pips)
+--- Golden Ratio Analysis ---
+Price_Position_in_Range: 52.65%
+Closest_Fib_Level: 50%
+Distance_to_Closest: 2.65%
+--- Fibonacci Confluence Analysis ---
+--- Fibonacci Time Analysis ---
+Fib_Time_1: 17 periods from swing point
+Fib_Time_2: 34 periods from swing point
+Fib_Time_3: 51 periods from swing point
+Fib_Time_5: 85 periods from swing point
+Fib_Time_8: 136 periods from swing point
+Fib_Time_13: 221 periods from swing point
+Fib_Time_21: 357 periods from swing point
+Fib_Time_34: 578 periods from swing point
+Golden_Spiral_Target_Up: 7341.84
+Golden_Spiral_Target_Down: 2804.33
+--- Fibonacci Fan Lines ---
+Fib_Fan_38.2%_Slope: 18.74
+Fib_Fan_50%_Slope: 24.53
+Fib_Fan_61.8%_Slope: 30.32
+MFI_14: 66.92
+Volume_Avg_20: 109417
+Relative_Volume: 0.37
+Volume_ROC: -34.60
+Tenkan_Sen: 4479.80
+Kijun_Sen: 4476.70
+Senkou_A: 4478.25
+Senkou_B: 4557.28
+Chikou_Span: 4537.51
+Cloud_Position: INSIDE_CLOUD
+Cloud_Top: 4557.28
+Cloud_Bottom: 4478.25
+ROC_12: 2.24
+Channel_High_20: 4585.73
+Channel_Low_20: 4350.94
+Channel_Position: 79.46
+Volatility_Ratio: 0.84
+
+--- Timeframe: PERIOD_H1 ---
+Pair: XAUUSDm
+Current Price: 4537.51
+Time: 2026.03.30 11:20
+EMA_8: 4524.61
+EMA_21: 4501.46
+EMA_50: 4482.09
+RSI: 61.726
+ADX_Main: 37.1427
+ADX_Plus: 23.3188
+ADX_Minus: 7.1859
+MACD: 20.734
+MACD_Signal: 16.012
+ATR: 29.706
+BB_UPPER: 4562.90
+BB_MID: 4504.26
+BB_LOWER: 4445.61
+Volume: 4973
+current candle:
+open : 4532.50
+high : 4545.43
+low : 4525.41
+close : 4537.51
+volume : 4973
+time : 2026.03.30 11:00
+last complete candle:
+open : 4532.41
+high : 4540.03
+low : 4527.52
+close : 4532.45
+volume : 10292
+time : 2026.03.30 10:00
+Resistance 3 (R3) : 4551.67
+Resistance 2 (R2) : 4545.85
+Resistance 1 (R1) : 4539.15
+Pivot Point : 4533.33
+Support 1 (S1) : 4526.63
+Support 2 (S2) : 4520.81
+Support 3 (S3) : 4514.11
+EMA_100: 4495.03
+EMA_200: 4586.73
+SMA_20: 4504.26
+SMA_50: 4457.08
+SMA_200: 4564.17
+WMA_21: 4510.09
+RSI_21: 58.46
+RSI_9: 65.56
+MACD_Fast: 16.94
+MACD_Fast_Signal: 14.89
+MACD_Histogram: 4.72
+Stoch_K_14: 87.57
+Stoch_D_14: 87.24
+Williams_R: -9.86
+CCI_20: 92.13
+Momentum_14: 100.94
+DeMarker: 0.60
+ATR_21: 34.05
+BB_Upper_15: 4550.81
+BB_Middle_15: 4501.81
+BB_Lower_15: 4452.81
+BB_Width_20: 2.60
+Envelopes_Upper: 4499.75
+PSAR: 4431.19
+=== Additional Trend Indicators ===
+SuperTrend_Upper: 4624.54
+SuperTrend_Lower: 4446.30
+SuperTrend_Value: 4446.30
+SuperTrend_Direction: UP
+Aroon_Up: 24.00
+Aroon_Down: 8.00
+Aroon_Oscillator: 16.00
+Vortex_Plus: 1.0833
+Vortex_Minus: 0.9396
+Vortex_Diff: 0.1436
+TRIX: 6.6144
+Keltner_Upper: 4560.87
+Keltner_Middle: 4501.46
+Keltner_Lower: 4442.04
+Keltner_Width: 2.64
+Fractal_Up_Signal: FALSE
+Fractal_Down_Signal: FALSE
+Alligator_Jaw: 4468.78
+Alligator_Teeth: 4488.46
+Alligator_Lips: 4508.85
+Alligator_State: EATING_UP
+ADXR: 29.25
+Trend_Strength_Index: 5.26
+Trend_Classification: SIDEWAYS
+=== Fibonacci Golden Ratios Analysis ===
+Swing_High: 4555.42 (Bars_Ago: 19)
+Swing_Low: 4350.94 (Bars_Ago: 37)
+Fib_Range: 204.48
+Trend_Direction: UPTREND
+--- Fibonacci Retracement Levels ---
+Fib_0%: 4555.42 (Distance: 1791.2 pips)
+Fib_23.6%: 4507.16 (Distance: 3034.5 pips)
+Fib_38.2%: 4477.31 (Distance: 6019.8 pips)
+Fib_50%: 4453.18 (Distance: 8432.6 pips)
+Fib_61.8%: 4429.05 (Distance: 10845.5 pips)
+Fib_76.4%: 4399.20 (Distance: 13830.8 pips)
+Fib_100%: 4350.94 (Distance: 18656.5 pips)
+--- Fibonacci Extension Levels ---
+Fib_Ext_127.2%: 4611.04 (Distance: 7353.0 pips)
+Fib_Ext_141.4%: 4640.07 (Distance: 10256.5 pips)
+Fib_Ext_161.8%: 4681.79 (Distance: 14427.9 pips)
+Fib_Ext_200%: 4759.90 (Distance: 22238.9 pips)
+Fib_Ext_261.8%: 4886.26 (Distance: 34875.6 pips)
+Fib_Ext_361.8%: 5090.74 (Distance: 55323.3 pips)
+Fib_Ext_423.6%: 5217.11 (Distance: 67960.0 pips)
+--- Golden Ratio Analysis ---
+Price_Position_in_Range: 8.76%
+Closest_Fib_Level: 0%
+Distance_to_Closest: 8.76%
+--- Fibonacci Confluence Analysis ---
+--- Fibonacci Time Analysis ---
+Fib_Time_1: 18 periods from swing point
+Fib_Time_2: 36 periods from swing point
+Fib_Time_3: 54 periods from swing point
+Fib_Time_5: 90 periods from swing point
+Fib_Time_8: 144 periods from swing point
+Fib_Time_13: 234 periods from swing point
+Fib_Time_21: 378 periods from swing point
+Fib_Time_34: 612 periods from swing point
+Golden_Spiral_Target_Up: 7341.84
+Golden_Spiral_Target_Down: 2804.33
+--- Fibonacci Fan Lines ---
+Fib_Fan_38.2%_Slope: 4.34
+Fib_Fan_50%_Slope: 5.68
+Fib_Fan_61.8%_Slope: 7.02
+MFI_14: 55.46
+Volume_Avg_20: 19855
+Relative_Volume: 0.25
+Volume_ROC: -51.68
+Tenkan_Sen: 4514.66
+Kijun_Sen: 4479.80
+Senkou_A: 4497.23
+Senkou_B: 4453.18
+Chikou_Span: 4537.51
+Cloud_Position: ABOVE_CLOUD
+Cloud_Top: 4497.23
+Cloud_Bottom: 4453.18
+ROC_12: 2.00
+Channel_High_20: 4555.42
+Channel_Low_20: 4418.50
+Channel_Position: 86.92
+Volatility_Ratio: 0.85
+
+--- Timeframe: PERIOD_M30 ---
+Pair: XAUUSDm
+Current Price: 4537.51
+Time: 2026.03.30 11:20
+EMA_8: 4530.46
+EMA_21: 4516.00
+EMA_50: 4494.42
+RSI: 62.323
+ADX_Main: 33.9344
+ADX_Plus: 22.9950
+ADX_Minus: 8.2856
+MACD: 14.543
+MACD_Signal: 14.489
+ATR: 15.862
+BB_UPPER: 4557.45
+BB_MID: 4514.05
+BB_LOWER: 4470.65
+Volume: 4973
+current candle:
+open : 4532.50
+high : 4545.43
+low : 4525.41
+close : 4537.51
+volume : 4973
+time : 2026.03.30 11:00
+last complete candle:
+open : 4531.23
+high : 4535.58
+low : 4528.10
+close : 4532.45
+volume : 4957
+time : 2026.03.30 10:30
+Resistance 3 (R3) : 4543.46
+Resistance 2 (R2) : 4539.52
+Resistance 1 (R1) : 4535.99
+Pivot Point : 4532.05
+Support 1 (S1) : 4528.51
+Support 2 (S2) : 4524.57
+Support 3 (S3) : 4521.03
+EMA_100: 4481.05
+EMA_200: 4495.17
+SMA_20: 4514.05
+SMA_50: 4489.55
+SMA_200: 4472.94
+WMA_21: 4523.50
+RSI_21: 59.84
+RSI_9: 65.58
+MACD_Fast: 8.56
+MACD_Fast_Signal: 11.78
+MACD_Histogram: 0.05
+Stoch_K_14: 73.99
+Stoch_D_14: 73.33
+Williams_R: -20.20
+CCI_20: 75.92
+Momentum_14: 101.04
+DeMarker: 0.81
+ATR_21: 19.12
+BB_Upper_15: 4544.52
+BB_Middle_15: 4523.62
+BB_Lower_15: 4502.72
+BB_Width_20: 1.92
+Envelopes_Upper: 4509.54
+PSAR: 4511.92
+=== Additional Trend Indicators ===
+SuperTrend_Upper: 4583.01
+SuperTrend_Lower: 4487.84
+SuperTrend_Value: 4487.84
+SuperTrend_Direction: UP
+Aroon_Up: 64.00
+Aroon_Down: 12.00
+Aroon_Oscillator: 52.00
+Vortex_Plus: 1.1745
+Vortex_Minus: 0.7894
+Vortex_Diff: 0.3851
+TRIX: 4.3585
+Keltner_Upper: 4547.73
+Keltner_Middle: 4516.00
+Keltner_Lower: 4484.28
+Keltner_Width: 1.40
+Fractal_Up_Signal: TRUE
+Fractal_Up_Value: 4540.66
+Fractal_Down_Signal: TRUE
+Fractal_Down_Value: 4523.72
+Alligator_Jaw: 4494.24
+Alligator_Teeth: 4511.88
+Alligator_Lips: 4524.73
+Alligator_State: EATING_UP
+ADXR: 29.56
+Trend_Strength_Index: 47.37
+Trend_Classification: WEAK_UPTREND
+=== Fibonacci Golden Ratios Analysis ===
+Swing_High: 4555.42 (Bars_Ago: 38)
+Swing_Low: 4404.19 (Bars_Ago: 46)
+Fib_Range: 151.23
+Trend_Direction: UPTREND
+--- Fibonacci Retracement Levels ---
+Fib_0%: 4555.42 (Distance: 1791.2 pips)
+Fib_23.6%: 4519.73 (Distance: 1777.9 pips)
+Fib_38.2%: 4497.65 (Distance: 3985.9 pips)
+Fib_50%: 4479.80 (Distance: 5770.4 pips)
+Fib_61.8%: 4461.96 (Distance: 7555.0 pips)
+Fib_76.4%: 4439.88 (Distance: 9763.0 pips)
+Fib_100%: 4404.19 (Distance: 13332.1 pips)
+--- Fibonacci Extension Levels ---
+Fib_Ext_127.2%: 4596.56 (Distance: 5904.7 pips)
+Fib_Ext_141.4%: 4618.03 (Distance: 8052.2 pips)
+Fib_Ext_161.8%: 4648.88 (Distance: 11137.4 pips)
+Fib_Ext_200%: 4706.65 (Distance: 16914.5 pips)
+Fib_Ext_261.8%: 4800.12 (Distance: 26260.7 pips)
+Fib_Ext_361.8%: 4951.35 (Distance: 41384.0 pips)
+Fib_Ext_423.6%: 5044.81 (Distance: 50730.2 pips)
+--- Golden Ratio Analysis ---
+Price_Position_in_Range: 11.84%
+Closest_Fib_Level: 23.6%
+Distance_to_Closest: 11.76%
+--- Fibonacci Confluence Analysis ---
+--- Fibonacci Time Analysis ---
+Fib_Time_1: 8 periods from swing point
+Fib_Time_2: 16 periods from swing point
+Fib_Time_3: 24 periods from swing point
+Fib_Time_5: 40 periods from swing point
+Fib_Time_8: 64 periods from swing point
+Fib_Time_13: 104 periods from swing point
+Fib_Time_21: 168 periods from swing point
+Fib_Time_34: 272 periods from swing point
+Golden_Spiral_Target_Up: 7341.84
+Golden_Spiral_Target_Down: 2804.33
+--- Fibonacci Fan Lines ---
+Fib_Fan_38.2%_Slope: 7.22
+Fib_Fan_50%_Slope: 9.45
+Fib_Fan_61.8%_Slope: 11.68
+MFI_14: 70.76
+Volume_Avg_20: 7709
+Relative_Volume: 0.65
+Volume_ROC: 0.32
+Tenkan_Sen: 4530.59
+Kijun_Sen: 4484.52
+Senkou_A: 4507.55
+Senkou_B: 4479.80
+Chikou_Span: 4537.51
+Cloud_Position: ABOVE_CLOUD
+Cloud_Top: 4507.55
+Cloud_Bottom: 4479.80
+ROC_12: 0.71
+Channel_High_20: 4550.53
+Channel_Low_20: 4444.99
+Channel_Position: 87.66
+Volatility_Ratio: 0.67
+
+--- Timeframe: PERIOD_M15 ---
+Pair: XAUUSDm
+Current Price: 4537.51
+Time: 2026.03.30 11:20
+EMA_8: 4534.45
+EMA_21: 4528.16
+EMA_50: 4512.59
+RSI: 59.884
+ADX_Main: 34.5631
+ADX_Plus: 20.8393
+ADX_Minus: 5.0200
+MACD: 7.788
+MACD_Signal: 9.014
+ATR: 10.595
+BB_UPPER: 4541.99
+BB_MID: 4532.19
+BB_LOWER: 4522.40
+Volume: 1643
+current candle:
+open : 4538.34
+high : 4545.43
+low : 4534.77
+close : 4537.51
+volume : 1643
+time : 2026.03.30 11:15
+last complete candle:
+open : 4532.50
+high : 4540.67
+low : 4525.41
+close : 4538.47
+volume : 3330
+time : 2026.03.30 11:00
+Resistance 3 (R3) : 4559.56
+Resistance 2 (R2) : 4550.12
+Resistance 1 (R1) : 4544.29
+Pivot Point : 4534.85
+Support 1 (S1) : 4529.03
+Support 2 (S2) : 4519.59
+Support 3 (S3) : 4513.77
+EMA_100: 4494.72
+EMA_200: 4481.37
+SMA_20: 4532.19
+SMA_50: 4501.76
+SMA_200: 4457.11
+WMA_21: 4532.90
+RSI_21: 58.63
+RSI_9: 60.75
+MACD_Fast: 2.99
+MACD_Fast_Signal: 3.01
+MACD_Histogram: -1.23
+Stoch_K_14: 73.12
+Stoch_D_14: 71.57
+Williams_R: -36.49
+CCI_20: 155.71
+Momentum_14: 100.23
+DeMarker: 0.69
+ATR_21: 11.25
+BB_Upper_15: 4538.23
+BB_Middle_15: 4532.89
+BB_Lower_15: 4527.54
+BB_Width_20: 0.43
+Envelopes_Upper: 4527.66
+PSAR: 4518.12
+=== Additional Trend Indicators ===
+SuperTrend_Upper: 4571.89
+SuperTrend_Lower: 4508.32
+SuperTrend_Value: 4508.32
+SuperTrend_Direction: UP
+Aroon_Up: 28.00
+Aroon_Down: 0.00
+Aroon_Oscillator: 28.00
+Vortex_Plus: 1.1057
+Vortex_Minus: 0.8829
+Vortex_Diff: 0.2228
+TRIX: 3.1224
+Keltner_Upper: 4549.35
+Keltner_Middle: 4528.16
+Keltner_Lower: 4506.97
+Keltner_Width: 0.94
+Fractal_Up_Signal: TRUE
+Fractal_Up_Value: 4540.03
+Fractal_Down_Signal: TRUE
+Fractal_Down_Value: 4527.52
+Alligator_Jaw: 4517.99
+Alligator_Teeth: 4528.03
+Alligator_Lips: 4531.71
+Alligator_State: EATING_UP
+ADXR: 34.12
+Trend_Strength_Index: -5.26
+Trend_Classification: SIDEWAYS
+=== Fibonacci Golden Ratios Analysis ===
+Swing_High: 4550.53 (Bars_Ago: 18)
+Swing_Low: 4418.50 (Bars_Ago: 45)
+Fib_Range: 132.03
+Trend_Direction: UPTREND
+--- Fibonacci Retracement Levels ---
+Fib_0%: 4550.53 (Distance: 1302.2 pips)
+Fib_23.6%: 4519.37 (Distance: 1813.7 pips)
+Fib_38.2%: 4500.10 (Distance: 3741.3 pips)
+Fib_50%: 4484.52 (Distance: 5299.2 pips)
+Fib_61.8%: 4468.94 (Distance: 6857.1 pips)
+Fib_76.4%: 4449.66 (Distance: 8784.7 pips)
+Fib_100%: 4418.50 (Distance: 11900.6 pips)
+--- Fibonacci Extension Levels ---
+Fib_Ext_127.2%: 4586.44 (Distance: 4893.4 pips)
+Fib_Ext_141.4%: 4605.19 (Distance: 6768.2 pips)
+Fib_Ext_161.8%: 4632.12 (Distance: 9461.5 pips)
+Fib_Ext_200%: 4682.56 (Distance: 14505.0 pips)
+Fib_Ext_261.8%: 4764.15 (Distance: 22664.3 pips)
+Fib_Ext_361.8%: 4896.18 (Distance: 35867.1 pips)
+Fib_Ext_423.6%: 4977.77 (Distance: 44026.5 pips)
+--- Golden Ratio Analysis ---
+Price_Position_in_Range: 9.86%
+Closest_Fib_Level: 0%
+Distance_to_Closest: 9.86%
+--- Fibonacci Confluence Analysis ---
+--- Fibonacci Time Analysis ---
+Fib_Time_1: 27 periods from swing point
+Fib_Time_2: 54 periods from swing point
+Fib_Time_3: 81 periods from swing point
+Fib_Time_5: 135 periods from swing point
+Fib_Time_8: 216 periods from swing point
+Fib_Time_13: 351 periods from swing point
+Fib_Time_21: 567 periods from swing point
+Fib_Time_34: 918 periods from swing point
+Golden_Spiral_Target_Up: 7341.84
+Golden_Spiral_Target_Down: 2804.33
+--- Fibonacci Fan Lines ---
+Fib_Fan_38.2%_Slope: 1.87
+Fib_Fan_50%_Slope: 2.44
+Fib_Fan_61.8%_Slope: 3.02
+MFI_14: 62.82
+Volume_Avg_20: 3297
+Relative_Volume: 0.50
+Volume_ROC: -50.66
+Tenkan_Sen: 4534.58
+Kijun_Sen: 4523.64
+Senkou_A: 4529.11
+Senkou_B: 4484.52
+Chikou_Span: 4537.51
+Cloud_Position: ABOVE_CLOUD
+Cloud_Top: 4529.11
+Cloud_Bottom: 4484.52
+ROC_12: 0.20
+Channel_High_20: 4550.53
+Channel_Low_20: 4515.75
+Channel_Position: 62.56
+Volatility_Ratio: 0.89
+
+--- Timeframe: PERIOD_M5 ---
+Pair: XAUUSDm
+Current Price: 4537.51
+Time: 2026.03.30 11:20
+EMA_8: 4536.28
+EMA_21: 4534.13
+EMA_50: 4530.23
+RSI: 54.583
+ADX_Main: 18.3659
+ADX_Plus: 22.2287
+ADX_Minus: 13.4615
+MACD: 1.639
+MACD_Signal: 0.644
+ATR: 6.678
+BB_UPPER: 4540.65
+BB_MID: 4533.66
+BB_LOWER: 4526.66
+Volume: 317
+current candle:
+open : 4544.41
+high : 4544.73
+low : 4534.77
+close : 4537.51
+volume : 317
+time : 2026.03.30 11:20
+last complete candle:
+open : 4538.34
+high : 4545.43
+low : 4537.87
+close : 4544.40
+volume : 1326
+time : 2026.03.30 11:15
+Resistance 3 (R3) : 4554.83
+Resistance 2 (R2) : 4550.13
+Resistance 1 (R1) : 4547.27
+Pivot Point : 4542.57
+Support 1 (S1) : 4539.70
+Support 2 (S2) : 4535.00
+Support 3 (S3) : 4532.14
+EMA_100: 4520.66
+EMA_200: 4505.27
+SMA_20: 4533.66
+SMA_50: 4531.56
+SMA_200: 4502.88
+WMA_21: 4534.32
+RSI_21: 54.43
+RSI_9: 55.02
+MACD_Fast: 2.48
+MACD_Fast_Signal: 0.57
+MACD_Histogram: 1.00
+Stoch_K_14: 79.84
+Stoch_D_14: 72.31
+Williams_R: -39.57
+CCI_20: 157.23
+Momentum_14: 100.10
+DeMarker: 0.56
+ATR_21: 6.08
+BB_Upper_15: 4539.87
+BB_Middle_15: 4533.86
+BB_Lower_15: 4527.85
+BB_Width_20: 0.31
+Envelopes_Upper: 4529.12
+PSAR: 4526.50
+=== Additional Trend Indicators ===
+SuperTrend_Upper: 4559.78
+SuperTrend_Lower: 4519.72
+SuperTrend_Value: 4519.72
+SuperTrend_Direction: UP
+Aroon_Up: 96.00
+Aroon_Down: 0.00
+Aroon_Oscillator: 96.00
+Vortex_Plus: 1.0349
+Vortex_Minus: 0.9110
+Vortex_Diff: 0.1239
+TRIX: 0.1876
+Keltner_Upper: 4547.49
+Keltner_Middle: 4534.13
+Keltner_Lower: 4520.78
+Keltner_Width: 0.59
+Fractal_Up_Signal: FALSE
+Fractal_Down_Signal: TRUE
+Fractal_Down_Value: 4525.41
+Alligator_Jaw: 4531.94
+Alligator_Teeth: 4532.22
+Alligator_Lips: 4531.62
+Alligator_State: AWAKENING
+ADXR: 17.00
+Trend_Strength_Index: -15.79
+Trend_Classification: SIDEWAYS
+=== Fibonacci Golden Ratios Analysis ===
+Swing_High: 4545.43 (Bars_Ago: 1)
+Swing_Low: 4515.75 (Bars_Ago: 46)
+Fib_Range: 29.68
+Trend_Direction: UPTREND
+--- Fibonacci Retracement Levels ---
+Fib_0%: 4545.43 (Distance: 792.4 pips)
+Fib_23.6%: 4538.43 (Distance: 91.9 pips)
+Fib_38.2%: 4534.09 (Distance: 341.4 pips)
+Fib_50%: 4530.59 (Distance: 691.6 pips)
+Fib_61.8%: 4527.09 (Distance: 1041.9 pips)
+Fib_76.4%: 4522.76 (Distance: 1475.2 pips)
+Fib_100%: 4515.75 (Distance: 2175.7 pips)
+--- Fibonacci Extension Levels ---
+Fib_Ext_127.2%: 4553.51 (Distance: 1599.7 pips)
+Fib_Ext_141.4%: 4557.72 (Distance: 2021.2 pips)
+Fib_Ext_161.8%: 4563.78 (Distance: 2626.7 pips)
+Fib_Ext_200%: 4575.11 (Distance: 3760.5 pips)
+Fib_Ext_261.8%: 4593.46 (Distance: 5594.8 pips)
+Fib_Ext_361.8%: 4623.14 (Distance: 8562.9 pips)
+Fib_Ext_423.6%: 4641.48 (Distance: 10397.2 pips)
+--- Golden Ratio Analysis ---
+Price_Position_in_Range: 26.70%
+Closest_Fib_Level: 23.6%
+Distance_to_Closest: 3.10%
+--- Fibonacci Confluence Analysis ---
+--- Fibonacci Time Analysis ---
+Fib_Time_1: 45 periods from swing point
+Fib_Time_2: 90 periods from swing point
+Fib_Time_3: 135 periods from swing point
+Fib_Time_5: 225 periods from swing point
+Fib_Time_8: 360 periods from swing point
+Fib_Time_13: 585 periods from swing point
+Fib_Time_21: 945 periods from swing point
+Fib_Time_34: 1530 periods from swing point
+Golden_Spiral_Target_Up: 7341.84
+Golden_Spiral_Target_Down: 2804.33
+--- Fibonacci Fan Lines ---
+Fib_Fan_38.2%_Slope: 0.25
+Fib_Fan_50%_Slope: 0.33
+Fib_Fan_61.8%_Slope: 0.41
+MFI_14: 60.72
+Volume_Avg_20: 915
+Relative_Volume: 0.35
+Volume_ROC: -76.09
+Tenkan_Sen: 4535.42
+Kijun_Sen: 4534.58
+Senkou_A: 4535.00
+Senkou_B: 4530.59
+Chikou_Span: 4537.51
+Cloud_Position: ABOVE_CLOUD
+Cloud_Top: 4535.00
+Cloud_Bottom: 4530.59
+ROC_12: 0.13
+Channel_High_20: 4545.43
+Channel_Low_20: 4525.41
+Channel_Position: 60.43
+Volatility_Ratio: 1.11
+
+--- Timeframe: PERIOD_M1 ---
+Pair: XAUUSDm
+Current Price: 4537.51
+Time: 2026.03.30 11:20
+EMA_8: 4539.78
+EMA_21: 4536.83
+EMA_50: 4534.48
+RSI: 53.209
+ADX_Main: 48.9878
+ADX_Plus: 25.6920
+ADX_Minus: 15.7094
+MACD: 2.546
+MACD_Signal: 1.956
+ATR: 3.296
+BB_UPPER: 4545.30
+BB_MID: 4535.32
+BB_LOWER: 4525.34
+Volume: 317
+current candle:
+open : 4544.41
+high : 4544.73
+low : 4534.77
+close : 4537.51
+volume : 317
+time : 2026.03.30 11:20
+last complete candle:
+open : 4543.94
+high : 4545.36
+low : 4543.82
+close : 4544.40
+volume : 215
+time : 2026.03.30 11:19
+Resistance 3 (R3) : 4546.78
+Resistance 2 (R2) : 4546.07
+Resistance 1 (R1) : 4545.24
+Pivot Point : 4544.53
+Support 1 (S1) : 4543.69
+Support 2 (S2) : 4542.98
+Support 3 (S3) : 4542.15
+EMA_100: 4533.37
+EMA_200: 4531.28
+SMA_20: 4535.32
+SMA_50: 4533.26
+SMA_200: 4532.96
+WMA_21: 4537.62
+RSI_21: 54.10
+RSI_9: 49.91
+MACD_Fast: 1.99
+MACD_Fast_Signal: 2.46
+MACD_Histogram: 0.59
+Stoch_K_14: 78.95
+Stoch_D_14: 87.23
+Williams_R: -54.16
+CCI_20: 59.11
+Momentum_14: 100.12
+DeMarker: 0.60
+ATR_21: 3.16
+BB_Upper_15: 4542.97
+BB_Middle_15: 4537.55
+BB_Lower_15: 4532.13
+BB_Width_20: 0.44
+Envelopes_Upper: 4530.78
+PSAR: 4545.43
+=== Additional Trend Indicators ===
+SuperTrend_Upper: 4549.64
+SuperTrend_Lower: 4529.86
+SuperTrend_Value: 4529.86
+SuperTrend_Direction: UP
+Aroon_Up: 92.00
+Aroon_Down: 36.00
+Aroon_Oscillator: 56.00
+Vortex_Plus: 1.1348
+Vortex_Minus: 0.7480
+Vortex_Diff: 0.3868
+TRIX: 0.6930
+Keltner_Upper: 4543.42
+Keltner_Middle: 4536.83
+Keltner_Lower: 4530.24
+Keltner_Width: 0.29
+Fractal_Up_Signal: TRUE
+Fractal_Up_Value: 4545.43
+Fractal_Down_Signal: TRUE
+Fractal_Down_Value: 4537.87
+Alligator_Jaw: 4532.37
+Alligator_Teeth: 4534.88
+Alligator_Lips: 4537.48
+Alligator_State: EATING_UP
+ADXR: 33.90
+Trend_Strength_Index: 15.79
+Trend_Classification: SIDEWAYS
+=== Fibonacci Golden Ratios Analysis ===
+Swing_High: 4545.43 (Bars_Ago: 2)
+Swing_Low: 4525.41 (Bars_Ago: 16)
+Fib_Range: 20.02
+Trend_Direction: UPTREND
+--- Fibonacci Retracement Levels ---
+Fib_0%: 4545.43 (Distance: 792.4 pips)
+Fib_23.6%: 4540.71 (Distance: 319.8 pips)
+Fib_38.2%: 4537.78 (Distance: 27.4 pips)
+Fib_50%: 4535.42 (Distance: 208.8 pips)
+Fib_61.8%: 4533.06 (Distance: 445.1 pips)
+Fib_76.4%: 4530.13 (Distance: 737.5 pips)
+Fib_100%: 4525.41 (Distance: 1210.1 pips)
+--- Fibonacci Extension Levels ---
+Fib_Ext_127.2%: 4550.88 (Distance: 1337.1 pips)
+Fib_Ext_141.4%: 4553.72 (Distance: 1621.4 pips)
+Fib_Ext_161.8%: 4557.81 (Distance: 2029.9 pips)
+Fib_Ext_200%: 4565.46 (Distance: 2794.9 pips)
+Fib_Ext_261.8%: 4577.83 (Distance: 4032.4 pips)
+Fib_Ext_361.8%: 4597.86 (Distance: 6034.9 pips)
+Fib_Ext_423.6%: 4610.23 (Distance: 7272.5 pips)
+--- Golden Ratio Analysis ---
+Price_Position_in_Range: 39.57%
+Closest_Fib_Level: 38.2%
+Distance_to_Closest: 1.37%
+--- Fibonacci Confluence Analysis ---
+CONFLUENCE_ALERT: Price near 38.2% Golden Ratio!
+--- Fibonacci Time Analysis ---
+Fib_Time_1: 14 periods from swing point
+Fib_Time_2: 28 periods from swing point
+Fib_Time_3: 42 periods from swing point
+Fib_Time_5: 70 periods from swing point
+Fib_Time_8: 112 periods from swing point
+Fib_Time_13: 182 periods from swing point
+Fib_Time_21: 294 periods from swing point
+Fib_Time_34: 476 periods from swing point
+Golden_Spiral_Target_Up: 7341.84
+Golden_Spiral_Target_Down: 2804.33
+--- Fibonacci Fan Lines ---
+Fib_Fan_38.2%_Slope: 0.55
+Fib_Fan_50%_Slope: 0.72
+Fib_Fan_61.8%_Slope: 0.88
+MFI_14: 76.28
+Volume_Avg_20: 236
+Relative_Volume: 1.34
+Volume_ROC: 47.44
+Tenkan_Sen: 4540.08
+Kijun_Sen: 4535.42
+Senkou_A: 4537.75
+Senkou_B: 4535.42
+Chikou_Span: 4537.51
+Cloud_Position: INSIDE_CLOUD
+Cloud_Top: 4537.75
+Cloud_Bottom: 4535.42
+ROC_12: 0.05
+Channel_High_20: 4545.43
+Channel_Low_20: 4525.41
+Channel_Position: 60.43
+Volatility_Ratio: 1.21
+
