@@ -142,10 +142,10 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const t = await response.text();
+      const t = await response.text().catch(() => "");
       console.error("AI API error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI API error" }), {
-        status: 500,
+      return new Response(JSON.stringify({ ok: false, unavailable: true, error: "سنعود قريباً" }), {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
