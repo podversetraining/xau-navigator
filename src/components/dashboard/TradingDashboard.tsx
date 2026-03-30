@@ -37,6 +37,9 @@ export function TradingDashboard() {
   const [progress, setProgress] = useState(0);
   const [showAnalyzing, setShowAnalyzing] = useState(false);
   const [analyzeProgress, setAnalyzeProgress] = useState(0);
+  // Holds the confirmed analysis to display — only swapped atomically after update completes
+  const [displayAnalysis, setDisplayAnalysis] = useState(analysis);
+  const [analysisVersionAtStart, setAnalysisVersionAtStart] = useState<string | null>(null);
 
   // Countdown to next analysis
   useEffect(() => {
@@ -55,22 +58,47 @@ export function TradingDashboard() {
     if (analyzing) {
       setShowAnalyzing(true);
       setAnalyzeProgress(0);
-      setCurrentSlide(0);
-      setProgress(0);
+      // Remember the current analysis timestamp so we know when a NEW one arrives
+      setAnalysisVersionAtStart(lastUpdate?.toISOString() || "none");
     }
-  }, [analyzing]);
+  }, [analyzing, lastUpdate]);
 
-  // When analysis finishes: show 100% briefly then hide
+  // When analysis finishes: wait for NEW analysis data, then swap atomically and reveal
   useEffect(() => {
-    if (!analyzing && showAnalyzing) {
-      setAnalyzeProgress(100);
-      const timer = setTimeout(() => {
-        setShowAnalyzing(false);
-        setAnalyzeProgress(0);
-      }, 3000);
-      return () => clearTimeout(timer);
+    if (!analyzing && showAnalyzing && analysis) {
+      const currentVersion = lastUpdate?.toISOString() || "none";
+      const hasNewData = currentVersion !== analysisVersionAtStart;
+
+      if (hasNewData) {
+        // New analysis arrived — show 100%, swap data atomically, then reveal
+        setAnalyzeProgress(100);
+        const timer = setTimeout(() => {
+          setDisplayAnalysis(analysis); // Atomic swap
+          setCurrentSlide(0);
+          setProgress(0);
+          setShowAnalyzing(false);
+          setAnalyzeProgress(0);
+        }, 2500);
+        return () => clearTimeout(timer);
+      }
+
+      // No new data yet but analyzing stopped (e.g. rate limit) — just dismiss
+      if (!analyzing) {
+        const fallbackTimer = setTimeout(() => {
+          setShowAnalyzing(false);
+          setAnalyzeProgress(0);
+        }, 1500);
+        return () => clearTimeout(fallbackTimer);
+      }
     }
-  }, [analyzing, showAnalyzing]);
+  }, [analyzing, showAnalyzing, analysis, lastUpdate, analysisVersionAtStart]);
+
+  // Keep displayAnalysis in sync when NOT in analyzing mode (e.g. initial load)
+  useEffect(() => {
+    if (!showAnalyzing && analysis) {
+      setDisplayAnalysis(analysis);
+    }
+  }, [analysis, showAnalyzing]);
 
   // Animate progress while analyzing
   useEffect(() => {
@@ -282,7 +310,7 @@ export function TradingDashboard() {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             className="absolute inset-0"
           >
-            {analysis && renderSlide(currentSlide, analysis, marketData)}
+          {displayAnalysis && renderSlide(currentSlide, displayAnalysis, marketData)}
           </motion.div>
         </AnimatePresence>
       </div>
