@@ -9,6 +9,8 @@ export function useMarketAnalysis() {
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [nextAnalysis, setNextAnalysis] = useState<Date | null>(null);
   const [rawData, setRawData] = useState<string>("");
 
   // Fetch local market data file (updates every minute from platform)
