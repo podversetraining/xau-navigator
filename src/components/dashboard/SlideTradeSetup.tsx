@@ -1,14 +1,9 @@
 import { motion } from "framer-motion";
 import type { AnalysisResult } from "@/types/analysis";
+import { isValidAiText } from "@/lib/sanitizeAi";
 
 function isValidNumber(v: unknown): v is number {
   return typeof v === "number" && !isNaN(v) && v > 0;
-}
-
-function isValidStr(v: unknown): v is string {
-  if (typeof v !== "string") return false;
-  const lower = v.toLowerCase().trim();
-  return lower.length > 0 && !lower.includes("invalid") && !lower.includes("unknown") && !lower.includes("cannot determine") && lower !== "—" && lower !== "-";
 }
 
 export function SlideTradeSetup({ analysis }: { analysis: AnalysisResult }) {
