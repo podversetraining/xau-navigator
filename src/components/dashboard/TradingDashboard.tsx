@@ -119,13 +119,22 @@ export function TradingDashboard() {
           </button>
         ))}
         <div className="ml-auto flex items-center gap-3">
+          {analyzing && (
+            <span className="flex items-center gap-2 text-gold text-xs font-data">
+              <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+              AI Analyzing...
+            </span>
+          )}
           {lastUpdate && (
             <span className="text-dim text-xs font-data">
-              Last analysis: {lastUpdate.toLocaleTimeString()}
+              Last: {lastUpdate.toLocaleTimeString()}
             </span>
           )}
           <span className="text-dim text-xs font-data">
-            Next in {Math.ceil((SLIDE_DURATION - (progress / 100 * SLIDE_DURATION)) / 1000)}s
+            Next analysis: {countdown}
+          </span>
+          <span className="text-dim text-xs font-data">
+            Slide {Math.ceil((SLIDE_DURATION - (progress / 100 * SLIDE_DURATION)) / 1000)}s
           </span>
         </div>
       </div>
