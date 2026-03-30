@@ -28,7 +28,14 @@ export function SlideOverview({ analysis, data }: { analysis: AnalysisResult; da
   const recBg = analysis.recommendation === "BUY" ? "bg-bullish" : analysis.recommendation === "SELL" ? "bg-bearish" : "bg-gold";
 
   return (
-    <div className="h-full flex flex-col gap-6 p-8">
+    <div className="h-full flex flex-col gap-4 p-8">
+      {/* Risk Disclaimer */}
+      <div className="bg-bearish/10 border border-bearish/30 rounded-lg px-4 py-2 flex items-center gap-2">
+        <span className="text-bearish text-sm shrink-0">⚠</span>
+        <p className="text-xs text-bearish font-data">
+          <strong>RISK WARNING:</strong> Trading involves significant risk. This is AI-generated analysis, not a recommendation. Rely on your own analysis.
+        </p>
+      </div>
       <div className="text-center">
         <h2 className="font-display text-lg tracking-widest text-dim mb-2">TRADING SIGNAL OVERVIEW</h2>
         <div className="flex items-center justify-center gap-4">
@@ -71,7 +78,7 @@ export function SlideOverview({ analysis, data }: { analysis: AnalysisResult; da
             <Row label="TP3 (30%)" value={analysis.tp3.toFixed(2)} bullish />
             <div className="border-t border-border pt-2 mt-1">
               <Row label="Risk/Reward" value={`1:${analysis.riskReward.toFixed(1)}`} accent />
-              <Row label="Lot Size" value={analysis.lotSize.toFixed(2)} />
+              <Row label="Lot Size" value="0.01 / $1,000" />
             </div>
           </div>
         </div>
