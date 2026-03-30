@@ -82,8 +82,9 @@ export function TradingDashboard() {
         }
       }
 
-      // API finished but no new data (rate limit / error) — dismiss after delay
+      // API finished but no new data (rate limit / error) — clear old data, show waiting screen
       const fallbackTimer = setTimeout(() => {
+        setDisplayAnalysis(null);
         setShowAnalyzing(false);
         setAnalyzeProgress(0);
       }, 1500);
