@@ -70,7 +70,7 @@ export function SlideTrendAnalysis({ analysis, data }: { analysis: AnalysisResul
               <IndicatorCard label="SMA 200" value={d1.sma200.toFixed(2)} status={d1.currentPrice > d1.sma200 ? "bullish" : "bearish"} />
             </div>
           )}
-          <p className="text-xs text-dim mt-3 font-data">{layer.emaOrder}</p>
+          {isValidAiText(layer.emaOrder) && <p className="text-xs text-dim mt-3 font-data">{layer.emaOrder}</p>}
         </div>
 
         {/* Trend Indicators */}
