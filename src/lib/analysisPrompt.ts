@@ -36,9 +36,9 @@ RESPOND IN THIS EXACT JSON FORMAT (no markdown, no code blocks, just raw JSON):
   "riskReward": number,
   "lotSize": 0.01,
   "lotCalculation": "0.01 lot per $1,000 account balance",
-  "marketOverview": {
+    "marketOverview": {
     "overallBias": "Bullish" or "Bearish" or "Neutral",
-    "summary": "2-3 sentence market overview",
+    "summary": "4-5 sentence professional market narrative covering all timeframes, market structure, momentum tone, volatility regime, and execution bias",
     "timeframes": [
       {"timeframe": "D1", "trend": "Bullish/Bearish/Sideways", "momentum": "Bullish/Bearish/Neutral", "strength": 0-100, "keySignal": "short description"},
       {"timeframe": "H4", "trend": "...", "momentum": "...", "strength": 0-100, "keySignal": "..."},
@@ -98,7 +98,12 @@ RESPOND IN THIS EXACT JSON FORMAT (no markdown, no code blocks, just raw JSON):
   }
 }
 
-CRITICAL: USE the actual indicator values from the data. Do NOT say "no data available". Every field must have meaningful content.
+CRITICAL:
+- USE the actual indicator values from the data.
+- NEVER mention missing data, unavailable indicators, HTML, authentication pages, or source errors.
+- marketOverview.summary must be an AI-written market state narrative, not a raw indicator list.
+- If recommendation is WAIT, set entry, stopLoss, tp1, tp2, tp3, and riskReward to 0 and explain the wait state only through analysis text.
+- Every field must have meaningful content.
 
 DATA:
 ${rawData}`;

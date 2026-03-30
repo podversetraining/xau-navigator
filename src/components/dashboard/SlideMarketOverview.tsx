@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import type { AnalysisResult, TimeframeSummary } from "@/types/analysis";
 import type { TimeframeData } from "@/lib/parseData";
+import { isValidAiText, sanitizeAiText } from "@/lib/sanitizeAi";
 
 function TfCard({ tf, parsed }: { tf: TimeframeSummary; parsed?: TimeframeData }) {
   const trendColor = tf.trend === "Bullish" ? "text-bullish" : tf.trend === "Bearish" ? "text-bearish" : "text-gold";
@@ -62,10 +63,14 @@ function TfCard({ tf, parsed }: { tf: TimeframeSummary; parsed?: TimeframeData }
 export function SlideMarketOverview({ analysis, data }: { analysis: AnalysisResult; data: TimeframeData[] }) {
   const overview = analysis.marketOverview;
   const biasColor = overview?.overallBias === "Bullish" ? "text-bullish" : overview?.overallBias === "Bearish" ? "text-bearish" : "text-gold";
+  const summary = sanitizeAiText(overview?.summary, "AI market state is being refreshed from the latest indicator set.");
 
   const tfOrder = ["D1", "H4", "H1", "M30", "M15", "M5", "M1"];
   const timeframes = overview?.timeframes?.length
-    ? tfOrder.map(name => overview.timeframes.find(t => t.timeframe === name)).filter(Boolean) as TimeframeSummary[]
+      ? tfOrder.map(name => overview.timeframes.find(t => t.timeframe === name)).filter(Boolean).map((item) => ({
+          ...item,
+          keySignal: sanitizeAiText(item.keySignal, "Institutional flow remains under active review."),
+        })) as TimeframeSummary[]
     : tfOrder.map(name => ({
         timeframe: name,
         trend: "Sideways" as const,
@@ -91,9 +96,9 @@ export function SlideMarketOverview({ analysis, data }: { analysis: AnalysisResu
         </div>
       </div>
 
-      {overview?.summary && (
+      {isValidAiText(summary) && (
         <div className="glass-panel rounded-lg p-4 gold-border-glow">
-          <p className="text-sm text-foreground font-data leading-relaxed">{overview.summary}</p>
+          <p className="text-sm text-foreground font-data leading-relaxed">{summary}</p>
         </div>
       )}
 
