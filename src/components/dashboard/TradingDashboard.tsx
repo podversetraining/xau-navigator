@@ -306,15 +306,16 @@ export function TradingDashboard() {
 function renderSlide(index: number, analysis: any, data: any[]) {
   switch (index) {
     case 0: return <SlideOverview analysis={analysis} data={data} />;
-    case 1: return <SlideTrendAnalysis analysis={analysis} data={data} />;
-    case 2: return <SlideMomentum analysis={analysis} data={data} />;
-    case 3: return <SlideEntryPoint analysis={analysis} data={data} />;
-    case 4: return <SlideTradeSetup analysis={analysis} />;
-    case 5: return <SlideFibonacci data={data} />;
-    case 6: return <SlideIchimoku data={data} />;
-    case 7: return <SlideMultiTimeframe data={data} />;
-    case 8: return <SlideTimingRisk analysis={analysis} data={data} />;
-    case 9: return <SlideCompanyInfo />;
+    case 1: return <SlideMarketOverview analysis={analysis} data={data} />;
+    case 2: return <SlideTrendAnalysis analysis={analysis} data={data} />;
+    case 3: return <SlideMomentum analysis={analysis} data={data} />;
+    case 4: return <SlideEntryPoint analysis={analysis} data={data} />;
+    case 5: return <SlideTradeSetup analysis={analysis} />;
+    case 6: return <SlideFibonacci data={data} />;
+    case 7: return <SlideIchimoku data={data} />;
+    case 8: return <SlideMultiTimeframe data={data} />;
+    case 9: return <SlideTimingRisk analysis={analysis} data={data} />;
+    case 10: return <SlideCompanyInfo />;
     default: return null;
   }
 }
