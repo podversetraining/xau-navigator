@@ -67,16 +67,16 @@ export function TradingDashboard() {
 
   // Animate progress while analyzing
   useEffect(() => {
-    if (!showAnalyzing || analyzeProgress >= 95) return;
+    if (!showAnalyzing || !analyzing) return;
     const interval = setInterval(() => {
       setAnalyzeProgress(prev => {
-        if (prev >= 90) return prev + 0.2;
+        if (prev >= 90) return Math.min(prev + 0.1, 92);
         if (prev >= 70) return prev + 0.5;
-        return prev + 1.5;
+        return prev + 2;
       });
-    }, 500);
+    }, 300);
     return () => clearInterval(interval);
-  }, [showAnalyzing, analyzeProgress]);
+  }, [showAnalyzing, analyzing]);
 
   // Auto-advance slides
   useEffect(() => {
