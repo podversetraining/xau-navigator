@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import type { AnalysisResult } from "@/types/analysis";
 import type { TimeframeData } from "@/lib/parseData";
+import { sanitizeAiText, isValidAiText } from "@/lib/sanitizeAi";
 
 function Gauge({ value, max, label, size = 100 }: { value: number; max: number; label: string; size?: number }) {
   const pct = Math.min((value / max) * 100, 100);
