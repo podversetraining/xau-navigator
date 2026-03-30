@@ -61,11 +61,11 @@ export function SlideTradeSetup({ analysis }: { analysis: AnalysisResult }) {
             <h3 className="font-display text-xs tracking-widest text-gold mb-3">RISK METRICS</h3>
             <div className="grid grid-cols-2 gap-3">
               <MetricBox label="Risk/Reward" value={`1:${analysis.riskReward?.toFixed(1) || "—"}`} />
-              <MetricBox label="Lot Size" value={analysis.lotSize?.toFixed(2) || "—"} />
+              <MetricBox label="Lot Size" value="0.01 / $1,000" />
               <MetricBox label="Max Loss" value="$20.00" />
               <MetricBox label="Trade Type" value={analysis.tradeType} />
             </div>
-            <p className="text-xs text-dim mt-3 font-data">{analysis.lotCalculation}</p>
+            <p className="text-xs text-dim mt-3 font-data">Lot calculation: 0.01 lot per $1,000 account balance (fixed risk management rule)</p>
           </div>
 
           <div className="glass-panel rounded-lg p-5 gold-border-glow">
@@ -75,6 +75,17 @@ export function SlideTradeSetup({ analysis }: { analysis: AnalysisResult }) {
               <div><span className="text-dim">Reverse Level: </span><span className="text-foreground">{analysis.failureScenario?.reverseLevel || "—"}</span></div>
               <div><span className="text-dim">Reverse Trade: </span><span className="text-foreground">{analysis.failureScenario?.reverseOpportunity || "—"}</span></div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Risk Disclaimer */}
+      <div className="bg-bearish/5 border border-bearish/20 rounded-lg p-4 mt-auto">
+        <div className="flex items-start gap-3">
+          <span className="text-bearish text-lg shrink-0">⚠</span>
+          <div className="text-xs text-dim font-data leading-relaxed">
+            <p className="text-bearish font-semibold mb-1">RISK WARNING</p>
+            <p>Trading involves significant risk of loss. This is an <strong className="text-foreground">AI-generated analysis</strong> — it may be accurate or inaccurate. This page provides comprehensive market information, <strong className="text-foreground">not a trading recommendation</strong>. Always rely on your own analysis and judgment before making any trading decisions.</p>
           </div>
         </div>
       </div>
