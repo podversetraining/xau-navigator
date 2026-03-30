@@ -12,6 +12,7 @@ import { SlideIchimoku } from "./SlideIchimoku";
 import { SlideMultiTimeframe } from "./SlideMultiTimeframe";
 import { SlideTimingRisk } from "./SlideTimingRisk";
 import { SlideCompanyInfo } from "./SlideCompanyInfo";
+import { SlideMarketOverview } from "./SlideMarketOverview";
 
 const SLIDE_DURATION = 15000; // 15 seconds per slide
 
