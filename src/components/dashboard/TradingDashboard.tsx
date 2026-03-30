@@ -137,6 +137,95 @@ export function TradingDashboard() {
     );
   }
 
+  // Full-screen analysis update screen
+  if (showAnalyzing) {
+    const phase = analyzeProgress >= 100
+      ? "ANALYSIS COMPLETE ✓"
+      : analyzeProgress >= 80
+        ? "Finalizing recommendation..."
+        : analyzeProgress >= 60
+          ? "Calculating entry points & risk levels..."
+          : analyzeProgress >= 40
+            ? "Processing momentum & timing signals..."
+            : analyzeProgress >= 20
+              ? "Analyzing trend across 7 timeframes..."
+              : "Reading market data & indicators...";
+
+    return (
+      <div className="h-screen flex flex-col bg-background overflow-hidden">
+        <DashboardHeader price={price} time={time} loading={true} />
+        <div className="flex-1 flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-lg mx-auto text-center px-8"
+          >
+            {/* Pulsing icon */}
+            <motion.div
+              animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="w-20 h-20 mx-auto mb-8 rounded-full flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--primary) / 0.05))", border: "1px solid hsl(var(--primary) / 0.3)" }}
+            >
+              <span className="text-3xl">
+                {analyzeProgress >= 100 ? "✓" : "⚡"}
+              </span>
+            </motion.div>
+
+            <h2 className="font-display text-xl tracking-widest text-gold mb-2">
+              {analyzeProgress >= 100 ? "UPDATE COMPLETE" : "UPDATING ANALYSIS"}
+            </h2>
+            <p className="text-muted-foreground text-sm font-body mb-8">{phase}</p>
+
+            {/* Progress bar */}
+            <div className="w-full h-3 bg-secondary rounded-full overflow-hidden mb-3">
+              <motion.div
+                className="h-full rounded-full"
+                animate={{ width: `${Math.max(0, Math.min(100, analyzeProgress))}%` }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                style={{
+                  background: analyzeProgress >= 100
+                    ? "linear-gradient(90deg, hsl(var(--success)), hsl(142 72% 55%))"
+                    : "linear-gradient(90deg, hsl(var(--primary) / 0.6), hsl(var(--primary)))",
+                  boxShadow: analyzeProgress >= 100
+                    ? "0 0 20px hsl(var(--success) / 0.5)"
+                    : "0 0 16px hsl(var(--primary) / 0.4)",
+                }}
+              />
+            </div>
+            <span className="text-gold font-display text-lg tracking-wider">
+              {Math.round(analyzeProgress)}%
+            </span>
+
+            {/* Indicators being analyzed */}
+            <div className="mt-8 grid grid-cols-3 gap-3">
+              {[
+                { label: "TREND", done: analyzeProgress >= 40 },
+                { label: "MOMENTUM", done: analyzeProgress >= 60 },
+                { label: "ENTRY", done: analyzeProgress >= 80 },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className={`rounded-lg px-3 py-2 text-xs font-display tracking-wider transition-all duration-500 ${
+                    item.done
+                      ? "bg-gold/10 text-gold border border-gold/30"
+                      : "bg-secondary text-muted-foreground border border-border"
+                  }`}
+                >
+                  {item.done ? "✓ " : "○ "}{item.label}
+                </div>
+              ))}
+            </div>
+
+            <p className="text-muted-foreground text-xs mt-6 font-data">
+              ARAB GLOBAL SECURITIES — AI Quantitative Analysis
+            </p>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       <DashboardHeader price={price} time={time} loading={loading} />
@@ -157,12 +246,6 @@ export function TradingDashboard() {
           </button>
         ))}
         <div className="ml-auto flex items-center gap-3">
-          {showAnalyzing && (
-            <span className="flex items-center gap-2 text-gold text-xs font-data">
-              <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-              {analyzeProgress >= 100 ? "Analysis Complete ✓" : "AI Analyzing..."}
-            </span>
-          )}
           {lastUpdate && (
             <span className="text-dim text-xs font-data">
               Last: {lastUpdate.toLocaleTimeString()}
@@ -185,39 +268,6 @@ export function TradingDashboard() {
           transition={{ duration: 0.05 }}
         />
       </div>
-
-      {/* Analysis Progress Bar */}
-      <AnimatePresence>
-        {showAnalyzing && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="bg-gold/5 border-b border-gold/20 px-8 py-2"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-              <span className="text-gold text-xs font-display tracking-widest">
-                {analyzeProgress >= 100 ? "ANALYSIS COMPLETE" : "AI ANALYSIS IN PROGRESS"}
-              </span>
-              <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full"
-                  animate={{ width: `${Math.max(0, Math.min(100, analyzeProgress))}%` }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  style={{
-                    width: "0%",
-                    background: "linear-gradient(90deg, hsl(var(--primary) / 0.55), hsl(var(--primary)))",
-                    boxShadow: "0 0 12px hsl(var(--primary) / 0.45)",
-                    transformOrigin: "left center",
-                  }}
-                />
-              </div>
-              <span className="text-dim text-xs font-data">{Math.round(analyzeProgress)}%</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Slide Content */}
       <div className="flex-1 overflow-hidden relative">
