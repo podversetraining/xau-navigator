@@ -48,6 +48,35 @@ export function TradingDashboard() {
     return () => clearInterval(timer);
   }, [nextAnalysis]);
 
+  // Smooth progress bar for analysis
+  useEffect(() => {
+    if (analyzing && !showAnalyzing) {
+      setShowAnalyzing(true);
+      setAnalyzeProgress(0);
+    }
+    if (!analyzing && showAnalyzing) {
+      // Analysis finished — show 100% briefly then hide
+      setAnalyzeProgress(100);
+      const timer = setTimeout(() => {
+        setShowAnalyzing(false);
+        setAnalyzeProgress(0);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [analyzing, showAnalyzing]);
+
+  // Animate progress while analyzing
+  useEffect(() => {
+    if (!showAnalyzing || analyzeProgress >= 95) return;
+    const interval = setInterval(() => {
+      setAnalyzeProgress(prev => {
+        if (prev >= 90) return prev + 0.2;
+        if (prev >= 70) return prev + 0.5;
+        return prev + 1.5;
+      });
+    }, 500);
+    return () => clearInterval(interval);
+
   // Auto-advance slides
   useEffect(() => {
     if (!analysis) return;
