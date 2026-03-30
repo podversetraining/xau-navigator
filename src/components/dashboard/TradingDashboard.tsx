@@ -76,6 +76,7 @@ export function TradingDashboard() {
       });
     }, 500);
     return () => clearInterval(interval);
+  }, [showAnalyzing, analyzeProgress]);
 
   // Auto-advance slides
   useEffect(() => {
