@@ -139,7 +139,7 @@ export function TradingDashboard() {
         </div>
       </div>
 
-      {/* Progress Bar */}
+      {/* Slide Progress Bar */}
       <div className="h-0.5 bg-secondary relative">
         <motion.div
           className="h-full bg-gold/50"
@@ -147,6 +147,32 @@ export function TradingDashboard() {
           transition={{ duration: 0.05 }}
         />
       </div>
+
+      {/* Analysis Progress Bar */}
+      <AnimatePresence>
+        {analyzing && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-gold/5 border-b border-gold/20 px-8 py-2"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+              <span className="text-gold text-xs font-display tracking-widest">AI ANALYSIS IN PROGRESS</span>
+              <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 30, ease: "linear" }}
+                />
+              </div>
+              <span className="text-dim text-xs font-data">Analyzing 7 timeframes...</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Slide Content */}
       <div className="flex-1 overflow-hidden relative">
