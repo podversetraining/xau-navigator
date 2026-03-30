@@ -77,7 +77,7 @@ export function useMarketAnalysis() {
     updateNextAnalysis();
   }, [fetchData, loadLatestAnalysis, updateNextAnalysis]);
 
-  // Refresh local data every minute + update countdown
+  // Refresh local data every 1 second (prices & indicators live)
   useEffect(() => {
     const interval = setInterval(() => {
       fetchData();
@@ -88,7 +88,7 @@ export function useMarketAnalysis() {
           setAnalyzing(true);
         }
       }
-    }, 10000);
+    }, 1000);
     return () => clearInterval(interval);
   }, [fetchData, nextAnalysis]);
 
