@@ -1,15 +1,12 @@
 import type { AnalysisResult } from "@/types/analysis";
 import type { TimeframeData } from "@/lib/parseData";
+import { isValidAiText } from "@/lib/sanitizeAi";
 
 function isValidNumber(v: unknown): v is number {
   return typeof v === "number" && !isNaN(v) && v > 0;
 }
 
-function isValidStr(v: unknown): v is string {
-  if (typeof v !== "string") return false;
-  const lower = v.toLowerCase().trim();
-  return lower.length > 0 && !lower.includes("invalid") && !lower.includes("unknown") && !lower.includes("cannot determine") && !lower.includes("no market data") && !lower.includes("html") && !lower.includes("authentication") && lower !== "—" && lower !== "-";
-}
+const isValidStr = isValidAiText;
 
 function parseMarketTimestamp(value: string): Date | null {
   const match = value.trim().match(/^(\d{4})\.(\d{2})\.(\d{2})\s+(\d{2}):(\d{2})$/);
