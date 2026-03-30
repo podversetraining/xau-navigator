@@ -33,6 +33,8 @@ export function TradingDashboard() {
   const [countdown, setCountdown] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [showAnalyzing, setShowAnalyzing] = useState(false);
+  const [analyzeProgress, setAnalyzeProgress] = useState(0);
 
   // Countdown to next analysis
   useEffect(() => {
@@ -45,6 +47,36 @@ export function TradingDashboard() {
     }, 1000);
     return () => clearInterval(timer);
   }, [nextAnalysis]);
+
+  // Smooth progress bar for analysis
+  useEffect(() => {
+    if (analyzing && !showAnalyzing) {
+      setShowAnalyzing(true);
+      setAnalyzeProgress(0);
+    }
+    if (!analyzing && showAnalyzing) {
+      // Analysis finished — show 100% briefly then hide
+      setAnalyzeProgress(100);
+      const timer = setTimeout(() => {
+        setShowAnalyzing(false);
+        setAnalyzeProgress(0);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [analyzing, showAnalyzing]);
+
+  // Animate progress while analyzing
+  useEffect(() => {
+    if (!showAnalyzing || analyzeProgress >= 95) return;
+    const interval = setInterval(() => {
+      setAnalyzeProgress(prev => {
+        if (prev >= 90) return prev + 0.2;
+        if (prev >= 70) return prev + 0.5;
+        return prev + 1.5;
+      });
+    }, 500);
+    return () => clearInterval(interval);
+  }, [showAnalyzing, analyzeProgress]);
 
   // Auto-advance slides
   useEffect(() => {
@@ -119,10 +151,10 @@ export function TradingDashboard() {
           </button>
         ))}
         <div className="ml-auto flex items-center gap-3">
-          {analyzing && (
+          {showAnalyzing && (
             <span className="flex items-center gap-2 text-gold text-xs font-data">
               <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-              AI Analyzing...
+              {analyzeProgress >= 100 ? "Analysis Complete ✓" : "AI Analyzing..."}
             </span>
           )}
           {lastUpdate && (
@@ -150,7 +182,7 @@ export function TradingDashboard() {
 
       {/* Analysis Progress Bar */}
       <AnimatePresence>
-        {analyzing && (
+        {showAnalyzing && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -159,16 +191,16 @@ export function TradingDashboard() {
           >
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-              <span className="text-gold text-xs font-display tracking-widest">AI ANALYSIS IN PROGRESS</span>
+              <span className="text-gold text-xs font-display tracking-widest">
+                {analyzeProgress >= 100 ? "ANALYSIS COMPLETE" : "AI ANALYSIS IN PROGRESS"}
+              </span>
               <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full"
-                  initial={{ width: "0%" }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 30, ease: "linear" }}
+                <div
+                  className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${analyzeProgress}%` }}
                 />
               </div>
-              <span className="text-dim text-xs font-data">Analyzing 7 timeframes...</span>
+              <span className="text-dim text-xs font-data">{Math.round(analyzeProgress)}%</span>
             </div>
           </motion.div>
         )}
