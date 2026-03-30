@@ -153,7 +153,7 @@ export function TradingDashboard() {
   const safeAnalysis = isStale ? null : displayAnalysis;
 
   // Error, stale, or no analysis: show "We'll be back soon" — NEVER show old/fake data
-  if (error || (!safeAnalysis && !loading)) {
+  if (error || analysisFailed || (!safeAnalysis && !loading)) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-background overflow-hidden">
         <div className="flex-1 flex items-center justify-center">
