@@ -98,9 +98,9 @@ export function TradingDashboard() {
     }
   }, [analysis, showAnalyzing]);
 
-  // Animate progress while analyzing
+  // Animate progress while API is running
   useEffect(() => {
-    if (!showAnalyzing || !analyzing) return;
+    if (!showAnalyzing || !runningAnalysis) return;
     const interval = setInterval(() => {
       setAnalyzeProgress(prev => {
         if (prev >= 90) return Math.min(prev + 0.1, 92);
@@ -110,7 +110,7 @@ export function TradingDashboard() {
       });
     }, 300);
     return () => clearInterval(interval);
-  }, [showAnalyzing, analyzing]);
+  }, [showAnalyzing, runningAnalysis]);
 
   // Auto-advance slides
   useEffect(() => {
