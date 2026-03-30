@@ -195,9 +195,16 @@ export function TradingDashboard() {
                 {analyzeProgress >= 100 ? "ANALYSIS COMPLETE" : "AI ANALYSIS IN PROGRESS"}
               </span>
               <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${analyzeProgress}%` }}
+                <motion.div
+                  className="h-full rounded-full"
+                  animate={{ width: `${Math.max(0, Math.min(100, analyzeProgress))}%` }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  style={{
+                    width: "0%",
+                    background: "linear-gradient(90deg, hsl(var(--primary) / 0.55), hsl(var(--primary)))",
+                    boxShadow: "0 0 12px hsl(var(--primary) / 0.45)",
+                    transformOrigin: "left center",
+                  }}
                 />
               </div>
               <span className="text-dim text-xs font-data">{Math.round(analyzeProgress)}%</span>
