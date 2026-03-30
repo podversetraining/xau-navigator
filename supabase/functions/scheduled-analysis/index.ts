@@ -6,37 +6,28 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// The analysis prompt template
 function buildPrompt(rawData: string): string {
-  return `You are a professional quantitative analyst specializing in Gold trading (XAUUSD) using a multi-layer analysis system.
+  return `You are a professional quantitative analyst specializing in Gold trading (XAUUSD).
 
-The attached data contains 7 timeframes (D1, H4, H1, M30, M15, M5, M1) with 90+ technical indicators each.
+IMPORTANT: The data below contains COMPLETE technical indicator data for 7 timeframes (D1, H4, H1, M30, M15, M5, M1) with 90+ indicators each. READ ALL THE DATA CAREFULLY before responding.
 
-TASK: Provide ONE specific trade recommendation with exact numbers.
+The data includes: EMAs, SMAs, WMA, RSI variants, MACD, Stochastic, Williams %R, CCI, Momentum, DeMarker, ADX, ATR, Bollinger Bands, Keltner Channels, SuperTrend, Alligator, Aroon, Vortex, TRIX, Ichimoku Cloud, Fibonacci levels, Pivot Points, Volume, MFI, Fractals, PSAR, and more.
+
+TASK: Analyze ALL the provided data and provide ONE comprehensive trade recommendation.
 
 CORE PRINCIPLE:
-- Don't require all indicators to align (this kills trades)
-- Required: alignment of 3 main layers only (Trend + Momentum + Confirmation)
-- Conflicting indicators are natural - majority direction matters
+- Required: alignment of 3 main layers (Trend + Momentum + Confirmation)
 - If 70% of indicators align = sufficient signal
+- Conflicting indicators are natural - majority direction matters
 
-LAYER 1: Dominant Trend (Weight: 40%)
-Analyze from D1 and H4: EMAs order, SMAs, WMA, Trend Classification, SuperTrend, Alligator, Aroon, Vortex, TRIX, ADXR, Ichimoku Cloud, Fibonacci levels.
+LAYER 1: Dominant Trend (Weight: 40%) — From D1 and H4
+LAYER 2: Momentum & Timing (Weight: 35%) — From H1, M30, M15
+LAYER 3: Precise Entry & Confirmation (Weight: 25%) — From M15, M5, M1
 
-LAYER 2: Momentum & Timing (Weight: 35%)
-Analyze from H1, M30, M15: RSI variants, MACD, Stochastic, Williams %R, CCI, Momentum, ROC, DeMarker. Check for divergences.
-
-LAYER 3: Precise Entry & Confirmation (Weight: 25%)
-Analyze from M15, M5, M1: Bollinger Bands, Keltner Channels, Pivot Points, SuperTrend, PSAR, Fractals, ATR, Volume, MFI.
-
-SCORING:
-Layer 1 (Trend): _/40
-Layer 2 (Momentum): _/35
-Layer 3 (Entry): _/25
-Total: _/100
+SCORING: Layer1: _/40 | Layer2: _/35 | Layer3: _/25 | Total: _/100
 <50: WAIT | 50-64: Weak | 65-79: Good | 80-89: Strong | 90-100: Excellent
 
-RESPOND IN THIS EXACT JSON FORMAT:
+RESPOND IN THIS EXACT JSON FORMAT (no markdown, no code blocks, just raw JSON):
 {
   "recommendation": "BUY" or "SELL" or "WAIT",
   "tradeType": "Scalping" or "Intraday" or "Swing",
@@ -53,34 +44,47 @@ RESPOND IN THIS EXACT JSON FORMAT:
   "tp2": number,
   "tp3": number,
   "riskReward": number,
-  "lotSize": number,
-  "lotCalculation": "string explaining calculation",
+  "lotSize": 0.01,
+  "lotCalculation": "0.01 lot per $1,000 account balance",
+  "marketOverview": {
+    "overallBias": "Bullish" or "Bearish" or "Neutral",
+    "summary": "2-3 sentence market overview explaining the current state",
+    "timeframes": [
+      {"timeframe": "D1", "trend": "Bullish/Bearish/Sideways", "momentum": "Bullish/Bearish/Neutral", "strength": 0-100, "keySignal": "short description"},
+      {"timeframe": "H4", "trend": "...", "momentum": "...", "strength": 0-100, "keySignal": "..."},
+      {"timeframe": "H1", "trend": "...", "momentum": "...", "strength": 0-100, "keySignal": "..."},
+      {"timeframe": "M30", "trend": "...", "momentum": "...", "strength": 0-100, "keySignal": "..."},
+      {"timeframe": "M15", "trend": "...", "momentum": "...", "strength": 0-100, "keySignal": "..."},
+      {"timeframe": "M5", "trend": "...", "momentum": "...", "strength": 0-100, "keySignal": "..."},
+      {"timeframe": "M1", "trend": "...", "momentum": "...", "strength": 0-100, "keySignal": "..."}
+    ]
+  },
   "layer1Analysis": {
     "trend": "Bullish" or "Bearish" or "Sideways",
     "strength": number,
-    "emaOrder": "string",
-    "superTrend": "string",
-    "alligator": "string",
-    "ichimoku": "string",
-    "fibonacci": "string",
-    "summary": "string"
+    "emaOrder": "describe EMA alignment based on actual EMA values from the data",
+    "superTrend": "describe SuperTrend status from the data",
+    "alligator": "describe Alligator state from the data",
+    "ichimoku": "describe Ichimoku cloud position from the data",
+    "fibonacci": "describe price position relative to Fibonacci levels",
+    "summary": "2-3 sentence trend summary using actual indicator values"
   },
   "layer2Analysis": {
     "momentum": "Bullish" or "Bearish" or "Neutral",
     "strength": number,
-    "rsi": "string",
-    "macd": "string",
-    "stochastic": "string",
-    "divergence": "string",
-    "summary": "string"
+    "rsi": "describe RSI readings across timeframes with actual values",
+    "macd": "describe MACD status with actual values",
+    "stochastic": "describe Stochastic readings with actual values",
+    "divergence": "describe any divergences found between price and indicators",
+    "summary": "2-3 sentence momentum summary using actual indicator values"
   },
   "layer3Analysis": {
-    "entryZone": "string",
-    "bollinger": "string",
-    "pivotPoints": "string",
-    "volume": "string",
-    "atr": "string",
-    "summary": "string"
+    "entryZone": "specific price zone for entry",
+    "bollinger": "describe BB position with actual values",
+    "pivotPoints": "describe pivot levels with actual values",
+    "volume": "describe volume analysis with actual values",
+    "atr": "describe ATR for stop loss calculation with actual values",
+    "summary": "2-3 sentence entry analysis using actual indicator values"
   },
   "management": {
     "tp1Action": "Close 40%, move SL to entry",
@@ -88,21 +92,27 @@ RESPOND IN THIS EXACT JSON FORMAT:
     "tp3Action": "Let remaining 30% run with trailing stop = ATR"
   },
   "failureScenario": {
-    "invalidation": "string",
-    "reverseLevel": "string",
-    "reverseOpportunity": "string"
+    "invalidation": "specific price level that invalidates the trade",
+    "reverseLevel": "price level for reverse entry",
+    "reverseOpportunity": "describe reverse trade opportunity"
   },
   "timing": {
-    "dataTime": "string",
-    "marketStatus": "string",
-    "bestTradingTime": "string"
+    "dataTime": "timestamp from the data",
+    "marketStatus": "current market session status",
+    "bestTradingTime": "recommended trading window"
   },
   "keyLevels": {
-    "strongResistance": [number],
-    "strongSupport": [number],
+    "strongResistance": [number, number],
+    "strongSupport": [number, number],
     "dailyPivot": number
   }
 }
+
+CRITICAL RULES:
+1. USE the actual indicator values from the data below. Do NOT say "no data available" or "unable to analyze"
+2. Every field must have meaningful content derived from the actual data
+3. If recommendation is WAIT, still fill all analysis fields with actual market observations
+4. All number fields must have real values from the data
 
 DATA:
 ${rawData}`;
@@ -112,7 +122,6 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    // Fetch market data from the published app
     const APP_URL = Deno.env.get("APP_URL") || "https://f24df3d3-4ed9-4e23-a824-77d960876447.lovableproject.com";
     const dataRes = await fetch(`${APP_URL}/data/XAUUSDm_Complete_Data.txt?t=${Date.now()}`);
     if (!dataRes.ok) throw new Error("Failed to fetch market data from app");
@@ -128,6 +137,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     console.log("Starting scheduled gold analysis...");
+    console.log("Data length:", rawData.length, "chars");
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -139,7 +149,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 8192,
-        system: "You are a professional quantitative gold trading analyst. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON.",
+        system: "You are a professional quantitative gold trading analyst. You MUST analyze all the provided technical indicator data carefully. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never say 'no data available' — the data IS provided to you.",
         messages: [
           { role: "user", content: prompt },
         ],
@@ -169,7 +179,6 @@ serve(async (req) => {
       parsed = { raw: content, error: "Failed to parse AI response as JSON" };
     }
 
-    // Save to database — triggers realtime for all clients
     const { error: dbError } = await supabase
       .from("gold_analysis")
       .insert({ analysis: parsed });

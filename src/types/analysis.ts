@@ -1,3 +1,11 @@
+export interface TimeframeSummary {
+  timeframe: string;
+  trend: "Bullish" | "Bearish" | "Sideways";
+  momentum: "Bullish" | "Bearish" | "Neutral";
+  strength: number; // 0-100
+  keySignal: string;
+}
+
 export interface AnalysisResult {
   recommendation: "BUY" | "SELL" | "WAIT";
   tradeType: string;
@@ -16,6 +24,11 @@ export interface AnalysisResult {
   riskReward: number;
   lotSize: number;
   lotCalculation: string;
+  marketOverview: {
+    overallBias: "Bullish" | "Bearish" | "Neutral";
+    summary: string;
+    timeframes: TimeframeSummary[];
+  };
   layer1Analysis: {
     trend: string;
     strength: number;
