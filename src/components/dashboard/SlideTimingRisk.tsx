@@ -27,14 +27,17 @@ function getMarketTiming(data: TimeframeData[], analysis: AnalysisResult) {
 
   const rawTimestamp = source?.time || source?.currentCandle?.time || source?.lastCandle?.time || (isValidStr(analysis.timing?.dataTime) ? analysis.timing.dataTime : "");
   const parsedTimestamp = isValidStr(rawTimestamp) ? parseMarketTimestamp(rawTimestamp) : null;
-  const hour = parsedTimestamp?.getHours() ?? -1;
+  // Server time is GMT+0 — convert to Gulf Time (UTC+3) for session display
+  const gmtHour = parsedTimestamp?.getHours() ?? -1;
+  const gulfHour = gmtHour >= 0 ? (gmtHour + 3) % 24 : -1;
   const day = parsedTimestamp?.getDay() ?? -1;
 
+  // Sessions in Gulf Time (UTC+3)
   const sessions = {
-    sydney: hour >= 1 && hour < 9,
-    tokyo: hour >= 4 && hour < 12,
-    london: hour >= 10 && hour < 19,
-    newYork: hour >= 15 && hour < 24,
+    sydney: gulfHour >= 1 && gulfHour < 9,
+    tokyo: gulfHour >= 4 && gulfHour < 12,
+    london: gulfHour >= 10 && gulfHour < 19,
+    newYork: gulfHour >= 15 && gulfHour < 24,
   };
 
   const marketStatus = day === 0 || day === 6
@@ -70,7 +73,7 @@ function getMarketTiming(data: TimeframeData[], analysis: AnalysisResult) {
                 : "";
 
   return {
-    timestampText: isValidStr(rawTimestamp) ? rawTimestamp : "",
+    timestampText: isValidStr(rawTimestamp) ? `${rawTimestamp} GMT → ${gulfHour >= 0 ? String(gulfHour).padStart(2, "0") + ":" + String(parsedTimestamp!.getMinutes()).padStart(2, "0") + " Gulf Time" : ""}` : "",
     marketStatus,
     bestTradingWindow,
     sessions,
