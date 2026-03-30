@@ -167,10 +167,8 @@ serve(async (req) => {
 
     const prompt = FULL_PROMPT.replace("{{DATA}}", rawData);
 
-    const AI_API_URL = Deno.env.get("AI_API_URL") || "https://api.lovable.dev/v1/chat/completions";
-    const AI_API_KEY = Deno.env.get("AI_API_KEY") || Deno.env.get("LOVABLE_API_KEY") || "";
-    if (!AI_API_KEY) throw new Error("AI_API_KEY is not configured");
-    const AI_MODEL = Deno.env.get("AI_MODEL") || "google/gemini-2.5-pro";
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -179,19 +177,18 @@ serve(async (req) => {
     console.log("Starting scheduled gold analysis...");
     console.log("Data length:", rawData.length, "chars");
 
-    const response = await fetch(AI_API_URL, {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${AI_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: AI_MODEL,
-        messages: [
-          { role: "system", content: "You are a professional quantitative gold trading analyst. You MUST analyze all the provided technical indicator data carefully and cite actual values. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data or source errors." },
-          { role: "user", content: prompt },
-        ],
+        model: "claude-sonnet-4-20250514",
         max_tokens: 8192,
+        system: "You are a professional quantitative gold trading analyst. You MUST analyze all the provided technical indicator data carefully and cite actual values. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data or source errors.",
+        messages: [{ role: "user", content: prompt }],
       }),
     });
 
@@ -205,7 +202,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "";
+    const content = data.content?.[0]?.text || "";
 
     let parsed;
     try {

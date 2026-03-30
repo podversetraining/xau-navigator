@@ -89,9 +89,8 @@ serve(async (req) => {
       });
     }
 
-    const AI_API_URL = Deno.env.get("AI_API_URL") || "https://api.lovable.dev/v1/chat/completions";
-    const AI_API_KEY = Deno.env.get("AI_API_KEY") || Deno.env.get("LOVABLE_API_KEY") || "";
-    if (!AI_API_KEY) throw new Error("AI_API_KEY is not configured");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -112,21 +111,20 @@ serve(async (req) => {
       });
     }
 
-    const AI_MODEL = Deno.env.get("AI_MODEL") || "google/gemini-2.5-pro";
-
-    const response = await fetch(AI_API_URL, {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${AI_API_KEY}`,
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: AI_MODEL,
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 8192,
+        system: "You are a professional quantitative gold trading analyst. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data, unavailable indicators, HTML, authentication, or source errors.",
         messages: [
-          { role: "system", content: "You are a professional quantitative gold trading analyst. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data, unavailable indicators, HTML, authentication, or source errors." },
           { role: "user", content: prompt },
         ],
-        max_tokens: 8192,
       }),
     });
 
@@ -153,7 +151,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "";
+    const content = data.content?.[0]?.text || "";
 
     // Try to parse JSON from the response
     let parsed;
