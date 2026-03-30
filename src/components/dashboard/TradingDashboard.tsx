@@ -168,7 +168,7 @@ export function TradingDashboard() {
             {nextAnalysis && (
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card">
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-muted-foreground text-sm font-mono"><span className="text-muted-foreground text-sm font-mono">Next update: {countdown}</span> {countdown}</span>
+                <span className="text-muted-foreground text-sm font-mono">Next update: {countdown}</span>
               </div>
             )}
           </motion.div>
