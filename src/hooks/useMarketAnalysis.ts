@@ -154,6 +154,7 @@ export function useMarketAnalysis() {
   const runAnalysis = useCallback(async (providedRawData?: string) => {
     setLoading(true);
     setError(null);
+    setRunningAnalysis(true);
 
     try {
       let text = providedRawData && hasValidMarketDataPayload(providedRawData) ? providedRawData : rawData;
@@ -177,6 +178,7 @@ export function useMarketAnalysis() {
       if (result?.rate_limited) {
         console.warn("Rate limited by AI, will retry next cycle");
         setLoading(false);
+        setRunningAnalysis(false);
         setAnalyzing(false);
         updateNextAnalysis();
         return;
@@ -184,6 +186,7 @@ export function useMarketAnalysis() {
       if (result?.error) {
         console.warn("Analysis soft error:", result.error);
         setLoading(false);
+        setRunningAnalysis(false);
         setAnalyzing(false);
         updateNextAnalysis();
         return;
@@ -198,6 +201,8 @@ export function useMarketAnalysis() {
       console.error("Analysis error:", err);
       setError(null);
       setLoading(false);
+    } finally {
+      setRunningAnalysis(false);
     }
   }, [rawData]);
 
