@@ -164,8 +164,8 @@ export function TradingDashboard() {
               <span className="text-4xl">⏳</span>
             </motion.div>
             <h1 className="font-display text-3xl text-primary mb-4">ARAB GLOBAL SECURITIES</h1>
-            <p className="text-foreground font-body text-xl mb-2">سنعود قريباً</p>
-            <p className="text-muted-foreground text-sm mb-6">جارٍ تحديث التحليل — لا نعرض بيانات قديمة حفاظاً على أموالك</p>
+            <p className="text-foreground font-body text-xl mb-2">We'll Be Back Shortly</p>
+            <p className="text-muted-foreground text-sm mb-6">Updating analysis — we never display stale data to protect your capital</p>
             {nextAnalysis && (
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card">
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
