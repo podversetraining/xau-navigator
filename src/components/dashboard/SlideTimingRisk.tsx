@@ -32,12 +32,12 @@ function getMarketTiming(data: TimeframeData[], analysis: AnalysisResult) {
   const dubaiHour = gmtHour >= 0 ? (gmtHour + 4) % 24 : -1;
   const day = parsedTimestamp?.getDay() ?? -1;
 
-  // Sessions in Gulf Time (UTC+3)
+  // Sessions in Dubai Time (UTC+3)
   const sessions = {
-    sydney: gulfHour >= 1 && gulfHour < 9,
-    tokyo: gulfHour >= 4 && gulfHour < 12,
-    london: gulfHour >= 10 && gulfHour < 19,
-    newYork: gulfHour >= 15 && gulfHour < 24,
+    sydney: dubaiHour >= 1 && dubaiHour < 9,
+    tokyo: dubaiHour >= 4 && dubaiHour < 12,
+    london: dubaiHour >= 10 && dubaiHour < 19,
+    newYork: dubaiHour >= 15 && dubaiHour < 24,
   };
 
   const marketStatus = day === 0 || day === 6
@@ -73,7 +73,7 @@ function getMarketTiming(data: TimeframeData[], analysis: AnalysisResult) {
                 : "";
 
   return {
-    timestampText: isValidStr(rawTimestamp) ? `${rawTimestamp} GMT → ${gulfHour >= 0 ? String(gulfHour).padStart(2, "0") + ":" + String(parsedTimestamp!.getMinutes()).padStart(2, "0") + " Gulf Time" : ""}` : "",
+    timestampText: isValidStr(rawTimestamp) ? `${rawTimestamp} GMT → ${dubaiHour >= 0 ? String(dubaiHour).padStart(2, "0") + ":" + String(parsedTimestamp!.getMinutes()).padStart(2, "0") + " Dubai Time" : ""}` : "",
     marketStatus,
     bestTradingWindow,
     sessions,
@@ -103,7 +103,7 @@ export function SlideTimingRisk({ analysis, data }: { analysis: AnalysisResult; 
             )}
 
             <div className="bg-secondary rounded-lg p-4 mt-2">
-              <h4 className="text-xs text-gold font-display tracking-widest mb-2">TRADING SESSIONS (GULF TIME)</h4>
+              <h4 className="text-xs text-gold font-display tracking-widest mb-2">TRADING SESSIONS (DUBAI TIME)</h4>
               <div className="flex flex-col gap-2 text-sm font-data">
                 <SessionRow name="Sydney" time="01:00 - 09:00" active={timing.sessions.sydney} />
                 <SessionRow name="Tokyo" time="04:00 - 12:00" active={timing.sessions.tokyo} />
