@@ -12,8 +12,9 @@ import { SlideIchimoku } from "./SlideIchimoku";
 import { SlideMultiTimeframe } from "./SlideMultiTimeframe";
 import { SlideTimingRisk } from "./SlideTimingRisk";
 import { SlideCompanyInfo } from "./SlideCompanyInfo";
+import { Radio } from "lucide-react";
 
-const SLIDE_DURATION = 15000; // 15 seconds per slide
+const SLIDE_DURATION = 15000;
 
 const SLIDES = [
   { id: "overview", label: "OVERVIEW" },
@@ -33,25 +34,20 @@ export function TradingDashboard() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
 
-  // Auto-advance slides
   useEffect(() => {
     if (!analysis) return;
-
     const startTime = Date.now();
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
       const pct = (elapsed % SLIDE_DURATION) / SLIDE_DURATION * 100;
       setProgress(pct);
-
       if (elapsed % SLIDE_DURATION < 50) {
         setCurrentSlide(prev => (prev + 1) % SLIDES.length);
       }
     }, 50);
-
     return () => clearInterval(interval);
   }, [analysis, currentSlide]);
 
-  // Reset progress on slide change
   useEffect(() => {
     setProgress(0);
   }, [currentSlide]);
@@ -61,68 +57,107 @@ export function TradingDashboard() {
 
   if (!analysis && !loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <h1 className="font-display text-2xl text-gold mb-4">ARAB GLOBAL SECURITIES</h1>
-          <p className="text-dim">Initializing trading analysis system...</p>
-          {error && <p className="text-bearish mt-2 text-sm">{error}</p>}
-        </div>
+      <div className="h-screen flex items-center justify-center bg-background trading-grid-bg">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <div className="w-16 h-16 mx-auto mb-6 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center animate-glow-pulse">
+            <Radio className="w-7 h-7 text-gold" />
+          </div>
+          <h1 className="font-display text-2xl gold-gradient-text mb-3">ARAB GLOBAL SECURITIES</h1>
+          <p className="text-dim font-display text-xs tracking-[0.3em]">INITIALIZING TRADING SYSTEM</p>
+          {error && <p className="text-bearish mt-4 text-sm font-data">{error}</p>}
+        </motion.div>
       </div>
     );
   }
 
   if (loading && !analysis) {
     return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <h1 className="font-display text-2xl text-gold mb-4">ARAB GLOBAL SECURITIES</h1>
-          <div className="flex items-center gap-3 justify-center">
-            <div className="w-3 h-3 rounded-full bg-gold animate-pulse" />
-            <p className="text-foreground font-body text-lg">Analyzing 7 timeframes with 90+ indicators...</p>
+      <div className="h-screen flex items-center justify-center bg-background trading-grid-bg">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center"
+        >
+          <div className="w-16 h-16 mx-auto mb-6 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+            >
+              <Radio className="w-7 h-7 text-gold" />
+            </motion.div>
           </div>
-          <p className="text-dim text-sm mt-2">AI quantitative analysis in progress</p>
-        </div>
+          <h1 className="font-display text-2xl gold-gradient-text mb-3">ARAB GLOBAL SECURITIES</h1>
+          <div className="flex items-center gap-3 justify-center mb-2">
+            <div className="flex gap-1">
+              {[0, 1, 2].map(i => (
+                <motion.div
+                  key={i}
+                  className="w-2 h-2 rounded-full bg-gold"
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.2 }}
+                />
+              ))}
+            </div>
+            <p className="text-foreground font-body text-base">Analyzing 7 timeframes with 90+ indicators</p>
+          </div>
+          <p className="text-dim text-xs font-display tracking-[0.2em]">AI QUANTITATIVE ANALYSIS IN PROGRESS</p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-background overflow-hidden trading-grid-bg scanline-overlay">
       <DashboardHeader price={price} time={time} loading={loading} />
 
       {/* Slide Navigation */}
-      <div className="flex items-center px-8 py-2 border-b border-border gap-1">
+      <div className="flex items-center px-6 py-2 border-b border-border gap-0.5 bg-card/30">
         {SLIDES.map((slide, i) => (
           <button
             key={slide.id}
             onClick={() => setCurrentSlide(i)}
-            className={`px-3 py-1.5 rounded text-xs font-display tracking-wider transition-all ${
+            className={`relative px-3 py-1.5 rounded text-[10px] font-display tracking-wider transition-all duration-300 ${
               i === currentSlide
-                ? "bg-gold/20 text-gold border border-gold/30"
+                ? "text-gold"
                 : "text-dim hover:text-foreground"
             }`}
           >
-            {slide.label}
+            {i === currentSlide && (
+              <motion.div
+                layoutId="activeSlideTab"
+                className="absolute inset-0 bg-gold/10 border border-gold/25 rounded"
+                transition={{ type: "spring", stiffness: 500, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10">{slide.label}</span>
           </button>
         ))}
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-4">
           {lastUpdate && (
-            <span className="text-dim text-xs font-data">
-              Last analysis: {lastUpdate.toLocaleTimeString()}
+            <span className="text-dim text-[10px] font-data">
+              Analysis: {lastUpdate.toLocaleTimeString()}
             </span>
           )}
-          <span className="text-dim text-xs font-data">
-            Next in {Math.ceil((SLIDE_DURATION - (progress / 100 * SLIDE_DURATION)) / 1000)}s
+          <span className="text-dim text-[10px] font-data tabular-nums">
+            Next: {Math.ceil((SLIDE_DURATION - (progress / 100 * SLIDE_DURATION)) / 1000)}s
           </span>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="h-0.5 bg-secondary relative">
+      <div className="h-[2px] bg-secondary/50 relative">
         <motion.div
-          className="h-full bg-gold/50"
+          className="h-full bg-gradient-to-r from-gold/60 via-gold to-gold/60"
           style={{ width: `${progress}%` }}
           transition={{ duration: 0.05 }}
+        />
+        <motion.div
+          className="absolute top-0 h-full w-16 bg-gradient-to-r from-transparent via-gold/40 to-transparent"
+          style={{ left: `${progress}%`, transform: 'translateX(-50%)' }}
         />
       </div>
 
@@ -131,10 +166,10 @@ export function TradingDashboard() {
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
+            initial={{ opacity: 0, y: 15, scale: 0.995 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.995 }}
+            transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="absolute inset-0"
           >
             {analysis && renderSlide(currentSlide, analysis, marketData)}
@@ -143,15 +178,22 @@ export function TradingDashboard() {
       </div>
 
       {/* Footer */}
-      <div className="px-8 py-2 border-t border-border flex items-center justify-between">
-        <span className="text-dim text-xs font-data">
-          ARAB GLOBAL SECURITIES — AI Quantitative Analysis Desk • XAUUSD Analysis System
+      <div className="px-8 py-2 border-t border-border flex items-center justify-between bg-card/30">
+        <span className="text-dim text-[10px] font-display tracking-[0.15em]">
+          ARAB GLOBAL SECURITIES — AI QUANTITATIVE ANALYSIS DESK
         </span>
-        <div className="flex items-center gap-4">
-          <span className="text-dim text-xs font-data">
-            {SLIDES[currentSlide].label} • Slide {currentSlide + 1}/{SLIDES.length}
+        <div className="flex items-center gap-6">
+          <span className="text-dim text-[10px] font-data tabular-nums">
+            {SLIDES[currentSlide].label} • {currentSlide + 1}/{SLIDES.length}
           </span>
-          <span className="text-gold text-xs font-data animate-pulse-gold">● LIVE BROADCAST</span>
+          <div className="flex items-center gap-1.5">
+            <motion.span
+              className="w-1.5 h-1.5 rounded-full bg-gold"
+              animate={{ opacity: [1, 0.3, 1] }}
+              transition={{ repeat: Infinity, duration: 2 }}
+            />
+            <span className="text-gold text-[10px] font-display tracking-[0.2em]">LIVE BROADCAST</span>
+          </div>
         </div>
       </div>
     </div>
