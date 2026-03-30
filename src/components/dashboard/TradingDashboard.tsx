@@ -33,6 +33,8 @@ export function TradingDashboard() {
   const [countdown, setCountdown] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [showAnalyzing, setShowAnalyzing] = useState(false);
+  const [analyzeProgress, setAnalyzeProgress] = useState(0);
 
   // Countdown to next analysis
   useEffect(() => {
