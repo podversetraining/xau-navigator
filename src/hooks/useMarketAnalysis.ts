@@ -11,6 +11,7 @@ export function useMarketAnalysis() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [runningAnalysis, setRunningAnalysis] = useState(false);
   const [nextAnalysis, setNextAnalysis] = useState<Date | null>(null);
   const [rawData, setRawData] = useState<string>("");
   const lastTriggeredSlotRef = useRef<string | null>(null);
@@ -153,6 +154,7 @@ export function useMarketAnalysis() {
   const runAnalysis = useCallback(async (providedRawData?: string) => {
     setLoading(true);
     setError(null);
+    setRunningAnalysis(true);
 
     try {
       let text = providedRawData && hasValidMarketDataPayload(providedRawData) ? providedRawData : rawData;
@@ -176,6 +178,7 @@ export function useMarketAnalysis() {
       if (result?.rate_limited) {
         console.warn("Rate limited by AI, will retry next cycle");
         setLoading(false);
+        setRunningAnalysis(false);
         setAnalyzing(false);
         updateNextAnalysis();
         return;
@@ -183,6 +186,7 @@ export function useMarketAnalysis() {
       if (result?.error) {
         console.warn("Analysis soft error:", result.error);
         setLoading(false);
+        setRunningAnalysis(false);
         setAnalyzing(false);
         updateNextAnalysis();
         return;
@@ -197,6 +201,8 @@ export function useMarketAnalysis() {
       console.error("Analysis error:", err);
       setError(null);
       setLoading(false);
+    } finally {
+      setRunningAnalysis(false);
     }
   }, [rawData]);
 
@@ -217,6 +223,7 @@ export function useMarketAnalysis() {
     error,
     rawData,
     analyzing,
+    runningAnalysis,
     nextAnalysis,
     runAnalysis,
   };
