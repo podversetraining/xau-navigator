@@ -53,45 +53,43 @@ export function TradingDashboard() {
     return () => clearInterval(timer);
   }, [nextAnalysis]);
 
-  // When analysis starts: show update screen, reset slides
+  // When analysis API call starts: show update screen
   useEffect(() => {
-    if (analyzing) {
+    if (runningAnalysis) {
       setShowAnalyzing(true);
       setAnalyzeProgress(0);
-      // Remember the current analysis timestamp so we know when a NEW one arrives
       setAnalysisVersionAtStart(lastUpdate?.toISOString() || "none");
     }
-  }, [analyzing, lastUpdate]);
+  }, [runningAnalysis]);
 
-  // When analysis finishes: wait for NEW analysis data, then swap atomically and reveal
+  // When analysis API call finishes: wait for NEW data, then swap atomically
   useEffect(() => {
-    if (!analyzing && showAnalyzing && analysis) {
-      const currentVersion = lastUpdate?.toISOString() || "none";
-      const hasNewData = currentVersion !== analysisVersionAtStart;
+    if (!runningAnalysis && showAnalyzing) {
+      if (analysis) {
+        const currentVersion = lastUpdate?.toISOString() || "none";
+        const hasNewData = currentVersion !== analysisVersionAtStart;
 
-      if (hasNewData) {
-        // New analysis arrived — show 100%, swap data atomically, then reveal
-        setAnalyzeProgress(100);
-        const timer = setTimeout(() => {
-          setDisplayAnalysis(analysis); // Atomic swap
-          setCurrentSlide(0);
-          setProgress(0);
-          setShowAnalyzing(false);
-          setAnalyzeProgress(0);
-        }, 2500);
-        return () => clearTimeout(timer);
+        if (hasNewData) {
+          setAnalyzeProgress(100);
+          const timer = setTimeout(() => {
+            setDisplayAnalysis(analysis);
+            setCurrentSlide(0);
+            setProgress(0);
+            setShowAnalyzing(false);
+            setAnalyzeProgress(0);
+          }, 2500);
+          return () => clearTimeout(timer);
+        }
       }
 
-      // No new data yet but analyzing stopped (e.g. rate limit) — just dismiss
-      if (!analyzing) {
-        const fallbackTimer = setTimeout(() => {
-          setShowAnalyzing(false);
-          setAnalyzeProgress(0);
-        }, 1500);
-        return () => clearTimeout(fallbackTimer);
-      }
+      // API finished but no new data (rate limit / error) — dismiss after delay
+      const fallbackTimer = setTimeout(() => {
+        setShowAnalyzing(false);
+        setAnalyzeProgress(0);
+      }, 1500);
+      return () => clearTimeout(fallbackTimer);
     }
-  }, [analyzing, showAnalyzing, analysis, lastUpdate, analysisVersionAtStart]);
+  }, [runningAnalysis, showAnalyzing, analysis, lastUpdate, analysisVersionAtStart]);
 
   // Keep displayAnalysis in sync when NOT in analyzing mode (e.g. initial load)
   useEffect(() => {
