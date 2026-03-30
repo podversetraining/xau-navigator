@@ -11,6 +11,7 @@ import { SlideFibonacci } from "./SlideFibonacci";
 import { SlideIchimoku } from "./SlideIchimoku";
 import { SlideMultiTimeframe } from "./SlideMultiTimeframe";
 import { SlideTimingRisk } from "./SlideTimingRisk";
+import { SlideCompanyInfo } from "./SlideCompanyInfo";
 
 const SLIDE_DURATION = 15000; // 15 seconds per slide
 
@@ -24,6 +25,7 @@ const SLIDES = [
   { id: "ichimoku", label: "ICHIMOKU" },
   { id: "matrix", label: "MATRIX" },
   { id: "timing", label: "TIMING" },
+  { id: "company", label: "ABOUT US" },
 ];
 
 export function TradingDashboard() {
