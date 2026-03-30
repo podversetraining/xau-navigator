@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import type { AnalysisResult } from "@/types/analysis";
 import type { TimeframeData } from "@/lib/parseData";
+import { isValidAiText } from "@/lib/sanitizeAi";
 
 function ScoreBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
   const pct = (value / max) * 100;
