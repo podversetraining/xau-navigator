@@ -54,7 +54,7 @@ export function useMarketAnalysis() {
       const latestValid = data?.find((row) => isUsableAnalysis(row.analysis));
 
       if (latestValid) {
-        const validAnalysis = latestValid.analysis as AnalysisResult;
+        const validAnalysis = latestValid.analysis as unknown as AnalysisResult;
         setAnalysis(validAnalysis);
         setLastUpdate(new Date(latestValid.created_at));
         setError(null);
@@ -134,7 +134,7 @@ export function useMarketAnalysis() {
             return;
           }
 
-          const validAnalysis = newRow.analysis as AnalysisResult;
+          const validAnalysis = newRow.analysis as unknown as AnalysisResult;
           setAnalysis(validAnalysis);
           setLastUpdate(new Date(newRow.created_at));
           setError(null);
