@@ -18,6 +18,7 @@ const SLIDE_DURATION = 15000; // 15 seconds per slide
 
 const SLIDES = [
   { id: "overview", label: "OVERVIEW" },
+  { id: "market", label: "MARKET" },
   { id: "trend", label: "TREND" },
   { id: "momentum", label: "MOMENTUM" },
   { id: "entry", label: "ENTRY" },
