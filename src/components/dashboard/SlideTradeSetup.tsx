@@ -74,7 +74,16 @@ export function SlideTradeSetup({ analysis }: { analysis: AnalysisResult }) {
               <div><span className="text-dim">Invalidation: </span><span className="text-foreground">{analysis.failureScenario?.invalidation || "—"}</span></div>
               <div><span className="text-dim">Reverse Level: </span><span className="text-foreground">{analysis.failureScenario?.reverseLevel || "—"}</span></div>
               <div><span className="text-dim">Reverse Trade: </span><span className="text-foreground">{analysis.failureScenario?.reverseOpportunity || "—"}</span></div>
-            </div>
+        </div>
+      </div>
+
+      {/* Risk Disclaimer */}
+      <div className="bg-bearish/5 border border-bearish/20 rounded-lg p-4 mt-auto">
+        <div className="flex items-start gap-3">
+          <span className="text-bearish text-lg shrink-0">⚠</span>
+          <div className="text-xs text-dim font-data leading-relaxed">
+            <p className="text-bearish font-semibold mb-1">RISK WARNING</p>
+            <p>Trading involves significant risk of loss. This is an <strong className="text-foreground">AI-generated analysis</strong> — it may be accurate or inaccurate. This page provides comprehensive market information, <strong className="text-foreground">not a trading recommendation</strong>. Always rely on your own analysis and judgment before making any trading decisions.</p>
           </div>
         </div>
       </div>
