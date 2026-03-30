@@ -31,7 +31,7 @@ const SLIDES = [
 ];
 
 export function TradingDashboard() {
-  const { marketData, analysis, loading, lastUpdate, error, analyzing, nextAnalysis } = useMarketAnalysis();
+  const { marketData, analysis, loading, lastUpdate, error, analyzing, runningAnalysis, nextAnalysis } = useMarketAnalysis();
   const [countdown, setCountdown] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
