@@ -59,17 +59,38 @@ export function useMarketAnalysis() {
     }
   }, []);
 
+  // Calculate next analysis time (next 5-min mark)
+  const updateNextAnalysis = useCallback(() => {
+    const now = new Date();
+    const next = new Date(now);
+    const mins = now.getMinutes();
+    const nextMin = Math.ceil((mins + 1) / 5) * 5;
+    next.setMinutes(nextMin, 0, 0);
+    if (next <= now) next.setMinutes(next.getMinutes() + 5);
+    setNextAnalysis(next);
+  }, []);
+
   // Initial load: fetch data + load latest analysis from DB
   useEffect(() => {
     fetchData();
     loadLatestAnalysis();
-  }, [fetchData, loadLatestAnalysis]);
+    updateNextAnalysis();
+  }, [fetchData, loadLatestAnalysis, updateNextAnalysis]);
 
-  // Refresh local data every minute
+  // Refresh local data every minute + update countdown
   useEffect(() => {
-    const interval = setInterval(fetchData, 60000);
+    const interval = setInterval(() => {
+      fetchData();
+      // Show "analyzing" indicator ~10s before next analysis
+      if (nextAnalysis) {
+        const diff = nextAnalysis.getTime() - Date.now();
+        if (diff <= 10000 && diff > -30000) {
+          setAnalyzing(true);
+        }
+      }
+    }, 10000);
     return () => clearInterval(interval);
-  }, [fetchData]);
+  }, [fetchData, nextAnalysis]);
 
   // Subscribe to realtime updates on gold_analysis table
   useEffect(() => {
