@@ -102,13 +102,15 @@ function parseNum(val: string): number {
 
 function extractVal(lines: string[], key: string): string {
   for (const line of lines) {
-    if (line.includes(key + ":")) {
-      const parts = line.split(key + ":");
-      if (parts[1]) {
-        let v = parts[1].trim();
+    // Match both "Key:" and "Key :" (with optional space before colon)
+    const keyPattern = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*:';
+    const match = line.match(new RegExp(keyPattern));
+    if (match) {
+      const afterKey = line.slice(line.indexOf(match[0]) + match[0].length).trim();
+      if (afterKey) {
+        let v = afterKey;
         // Handle values like "4564.15 (Distance: ...)"
         if (v.includes("(")) v = v.split("(")[0].trim();
-        // Handle values like "4602.46 (Bars_Ago: 24)"
         return v;
       }
     }
