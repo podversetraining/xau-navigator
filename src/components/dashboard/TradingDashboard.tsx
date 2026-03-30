@@ -37,8 +37,8 @@ export function TradingDashboard() {
   const [progress, setProgress] = useState(0);
   const [showAnalyzing, setShowAnalyzing] = useState(false);
   const [analyzeProgress, setAnalyzeProgress] = useState(0);
-  // Holds the confirmed analysis to display — only swapped atomically after update completes
-  const [displayAnalysis, setDisplayAnalysis] = useState(analysis);
+  // Holds only the confirmed analysis currently allowed to render
+  const [displayAnalysis, setDisplayAnalysis] = useState(analysis ?? null);
   const [analysisVersionAtStart, setAnalysisVersionAtStart] = useState<string | null>(null);
 
   // Countdown to next analysis
@@ -53,14 +53,15 @@ export function TradingDashboard() {
     return () => clearInterval(timer);
   }, [nextAnalysis]);
 
-  // When analysis API call starts: show update screen
+  // When analysis API call starts: show update screen and hard-clear any previous analysis
   useEffect(() => {
     if (runningAnalysis) {
+      setDisplayAnalysis(null);
       setShowAnalyzing(true);
       setAnalyzeProgress(0);
       setAnalysisVersionAtStart(lastUpdate?.toISOString() || "none");
     }
-  }, [runningAnalysis]);
+  }, [runningAnalysis, lastUpdate]);
 
   // When analysis API call finishes: wait for NEW data, then swap atomically
   useEffect(() => {
@@ -92,12 +93,17 @@ export function TradingDashboard() {
     }
   }, [runningAnalysis, showAnalyzing, analysis, lastUpdate, analysisVersionAtStart]);
 
-  // Keep displayAnalysis in sync when NOT in analyzing mode (e.g. initial load)
+  // Sync only genuinely new analysis versions — never repopulate a cleared stale version
   useEffect(() => {
-    if (!showAnalyzing && analysis) {
+    if (showAnalyzing || runningAnalysis || !analysis) return;
+
+    const currentVersion = lastUpdate?.toISOString() || "none";
+    const isBlockedOldVersion = currentVersion === analysisVersionAtStart;
+
+    if (!isBlockedOldVersion) {
       setDisplayAnalysis(analysis);
     }
-  }, [analysis, showAnalyzing]);
+  }, [analysis, lastUpdate, showAnalyzing, runningAnalysis, analysisVersionAtStart]);
 
   // Animate progress while API is running
   useEffect(() => {
@@ -115,7 +121,7 @@ export function TradingDashboard() {
 
   // Auto-advance slides
   useEffect(() => {
-    if (!analysis) return;
+    if (!displayAnalysis) return;
 
     const startTime = Date.now();
     const interval = setInterval(() => {
@@ -129,7 +135,7 @@ export function TradingDashboard() {
     }, 50);
 
     return () => clearInterval(interval);
-  }, [analysis, currentSlide]);
+  }, [displayAnalysis, currentSlide]);
 
   // Reset progress on slide change
   useEffect(() => {
