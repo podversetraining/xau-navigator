@@ -127,6 +127,8 @@ export function useMarketAnalysis() {
     lastUpdate,
     error,
     rawData,
+    analyzing,
+    nextAnalysis,
     runAnalysis: async () => {
       // Manual trigger kept for admin use
       setLoading(true);
