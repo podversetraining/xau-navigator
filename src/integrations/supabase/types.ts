@@ -14,7 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      gold_analysis: {
+        Row: {
+          analysis: Json
+          created_at: string
+          id: string
+        }
+        Insert: {
+          analysis: Json
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          analysis?: Json
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
