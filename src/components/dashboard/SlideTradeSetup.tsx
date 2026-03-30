@@ -74,6 +74,8 @@ export function SlideTradeSetup({ analysis }: { analysis: AnalysisResult }) {
               <div><span className="text-dim">Invalidation: </span><span className="text-foreground">{analysis.failureScenario?.invalidation || "—"}</span></div>
               <div><span className="text-dim">Reverse Level: </span><span className="text-foreground">{analysis.failureScenario?.reverseLevel || "—"}</span></div>
               <div><span className="text-dim">Reverse Trade: </span><span className="text-foreground">{analysis.failureScenario?.reverseOpportunity || "—"}</span></div>
+            </div>
+          </div>
         </div>
       </div>
 
