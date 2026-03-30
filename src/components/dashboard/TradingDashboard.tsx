@@ -151,10 +151,10 @@ export function TradingDashboard() {
           </button>
         ))}
         <div className="ml-auto flex items-center gap-3">
-          {analyzing && (
+          {showAnalyzing && (
             <span className="flex items-center gap-2 text-gold text-xs font-data">
               <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-              AI Analyzing...
+              {analyzeProgress >= 100 ? "Analysis Complete ✓" : "AI Analyzing..."}
             </span>
           )}
           {lastUpdate && (
