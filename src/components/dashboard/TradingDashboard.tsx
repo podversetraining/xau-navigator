@@ -34,6 +34,18 @@ export function TradingDashboard() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
 
+  // Countdown to next analysis
+  useEffect(() => {
+    if (!nextAnalysis) return;
+    const timer = setInterval(() => {
+      const diff = Math.max(0, nextAnalysis.getTime() - Date.now());
+      const m = Math.floor(diff / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setCountdown(`${m}:${s.toString().padStart(2, "0")}`);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [nextAnalysis]);
+
   // Auto-advance slides
   useEffect(() => {
     if (!analysis) return;
