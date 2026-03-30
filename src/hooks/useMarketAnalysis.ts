@@ -109,6 +109,8 @@ export function useMarketAnalysis() {
           setLastUpdate(new Date(newRow.created_at));
           setError(null);
           setLoading(false);
+          setAnalyzing(false);
+          updateNextAnalysis();
         }
       )
       .subscribe();
