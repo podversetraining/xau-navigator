@@ -1,5 +1,6 @@
 import type { AnalysisResult } from "@/types/analysis";
 import type { TimeframeData } from "@/lib/parseData";
+import { sanitizeAiText, isValidAiText } from "@/lib/sanitizeAi";
 
 function MomentumGauge({ value, min, max, label, zones }: { value: number; min: number; max: number; label: string; zones?: { low: number; high: number } }) {
   const pct = ((value - min) / (max - min)) * 100;
