@@ -123,23 +123,22 @@ serve(async (req) => {
       });
     }
 
-    // Use Lovable AI Gateway with GPT-5 for strongest reasoning
+    // Use Anthropic Claude Sonnet directly
     const MAX_ATTEMPTS = 2;
     let parsed: unknown = null;
 
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
+          "x-api-key": ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
         },
         body: JSON.stringify({
-          model: "openai/gpt-5",
-          messages: [
-            {
-              role: "system",
-              content: `You are a professional quantitative gold trading analyst. 
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 8192,
+          system: `You are a professional quantitative gold trading analyst. 
 CRITICAL RULES:
 1. Always respond with valid JSON only — no markdown, no code blocks, just raw JSON.
 2. Never mention missing data, unavailable indicators, HTML, authentication, or source errors.
@@ -150,10 +149,9 @@ CRITICAL RULES:
 4. confidenceScore must reflect actual indicator agreement (0-100). Only use 80+ if 80%+ of indicators agree.
 5. Do NOT give BUY/SELL with confidence below 65.
 6. Every number (entry, SL, TP) must come from the actual data provided.`,
-            },
+          messages: [
             { role: "user", content: prompt },
           ],
-          reasoning: { effort: "high" },
         }),
       });
 
