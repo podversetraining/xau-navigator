@@ -182,7 +182,7 @@ export function TradingDashboard() {
 
       {/* Analysis Progress Bar */}
       <AnimatePresence>
-        {analyzing && (
+        {showAnalyzing && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -191,16 +191,16 @@ export function TradingDashboard() {
           >
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-              <span className="text-gold text-xs font-display tracking-widest">AI ANALYSIS IN PROGRESS</span>
+              <span className="text-gold text-xs font-display tracking-widest">
+                {analyzeProgress >= 100 ? "ANALYSIS COMPLETE" : "AI ANALYSIS IN PROGRESS"}
+              </span>
               <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full"
-                  initial={{ width: "0%" }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 30, ease: "linear" }}
+                <div
+                  className="h-full bg-gradient-to-r from-gold/60 to-gold rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${analyzeProgress}%` }}
                 />
               </div>
-              <span className="text-dim text-xs font-data">Analyzing 7 timeframes...</span>
+              <span className="text-dim text-xs font-data">{Math.round(analyzeProgress)}%</span>
             </div>
           </motion.div>
         )}
