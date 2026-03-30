@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,6 +20,10 @@ serve(async (req) => {
 
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -51,8 +56,8 @@ serve(async (req) => {
         });
       }
       const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
+      console.error("AI API error:", response.status, t);
+      return new Response(JSON.stringify({ error: "AI API error" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -64,7 +69,6 @@ serve(async (req) => {
     // Try to parse JSON from the response
     let parsed;
     try {
-      // Remove potential markdown code blocks
       let cleaned = content.trim();
       if (cleaned.startsWith("```")) {
         cleaned = cleaned.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
@@ -72,6 +76,15 @@ serve(async (req) => {
       parsed = JSON.parse(cleaned);
     } catch {
       parsed = { raw: content, error: "Failed to parse AI response as JSON" };
+    }
+
+    // Save to database (insert new, keeping history)
+    const { error: dbError } = await supabase
+      .from("gold_analysis")
+      .insert({ analysis: parsed });
+
+    if (dbError) {
+      console.error("DB insert error:", dbError);
     }
 
     return new Response(JSON.stringify(parsed), {
