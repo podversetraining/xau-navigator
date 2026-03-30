@@ -173,7 +173,20 @@ export function useMarketAnalysis() {
       });
 
       if (fnError) throw fnError;
-      if (result?.error) throw new Error(result.error);
+      if (result?.rate_limited) {
+        console.warn("Rate limited by AI, will retry next cycle");
+        setLoading(false);
+        setAnalyzing(false);
+        updateNextAnalysis();
+        return;
+      }
+      if (result?.error) {
+        console.warn("Analysis soft error:", result.error);
+        setLoading(false);
+        setAnalyzing(false);
+        updateNextAnalysis();
+        return;
+      }
 
       if (isUsableAnalysis(result)) {
         setAnalysis(result);

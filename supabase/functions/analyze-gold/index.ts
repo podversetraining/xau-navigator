@@ -130,14 +130,15 @@ serve(async (req) => {
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limited, please try again later." }), {
-          status: 429,
+        console.warn("AI API rate limited, returning soft error");
+        return new Response(JSON.stringify({ ok: false, rate_limited: true, error: "Rate limited, will retry on next cycle." }), {
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Payment required." }), {
-          status: 402,
+        return new Response(JSON.stringify({ ok: false, error: "Payment required." }), {
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -165,8 +166,8 @@ serve(async (req) => {
     }
 
     if (!isUsableAnalysis(parsed)) {
-      return new Response(JSON.stringify({ error: "AI returned an invalid analysis payload" }), {
-        status: 422,
+      return new Response(JSON.stringify({ ok: false, error: "AI returned an invalid analysis payload" }), {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
