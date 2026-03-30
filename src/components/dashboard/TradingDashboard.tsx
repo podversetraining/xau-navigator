@@ -140,13 +140,35 @@ export function TradingDashboard() {
   const price = marketData[0]?.currentPrice || 0;
   const time = marketData[0]?.time || "";
 
-  if (!analysis && !loading) {
+  // Error or no analysis: show "We'll be back soon" — NEVER show old/fake data
+  if (error || (!analysis && !loading)) {
     return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <h1 className="font-display text-2xl text-gold mb-4">ARAB GLOBAL SECURITIES</h1>
-          <p className="text-dim">Initializing trading analysis system...</p>
-          {error && <p className="text-bearish mt-2 text-sm">{error}</p>}
+      <div className="h-screen flex flex-col items-center justify-center bg-background overflow-hidden">
+        <DashboardHeader price={price} time={time} loading={false} />
+        <div className="flex-1 flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center px-8"
+          >
+            <motion.div
+              animate={{ scale: [1, 1.08, 1], opacity: [0.6, 1, 0.6] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="w-24 h-24 mx-auto mb-8 rounded-full flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.05))", border: "1px solid hsl(var(--primary) / 0.25)" }}
+            >
+              <span className="text-4xl">⏳</span>
+            </motion.div>
+            <h1 className="font-display text-3xl text-primary mb-4">ARAB GLOBAL SECURITIES</h1>
+            <p className="text-foreground font-body text-xl mb-2">سنعود قريباً</p>
+            <p className="text-muted-foreground text-sm mb-6">جارٍ تحديث التحليل — لا نعرض بيانات قديمة حفاظاً على أموالك</p>
+            {nextAnalysis && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <span className="text-muted-foreground text-sm font-mono">التحديث القادم: {countdown}</span>
+              </div>
+            )}
+          </motion.div>
         </div>
       </div>
     );
@@ -156,12 +178,12 @@ export function TradingDashboard() {
     return (
       <div className="h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <h1 className="font-display text-2xl text-gold mb-4">ARAB GLOBAL SECURITIES</h1>
+          <h1 className="font-display text-2xl text-primary mb-4">ARAB GLOBAL SECURITIES</h1>
           <div className="flex items-center gap-3 justify-center">
-            <div className="w-3 h-3 rounded-full bg-gold animate-pulse" />
+            <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
             <p className="text-foreground font-body text-lg">Analyzing 7 timeframes with 90+ indicators...</p>
           </div>
-          <p className="text-dim text-sm mt-2">AI quantitative analysis in progress</p>
+          <p className="text-muted-foreground text-sm mt-2">AI quantitative analysis in progress</p>
         </div>
       </div>
     );
