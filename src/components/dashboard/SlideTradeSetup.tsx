@@ -61,11 +61,11 @@ export function SlideTradeSetup({ analysis }: { analysis: AnalysisResult }) {
             <h3 className="font-display text-xs tracking-widest text-gold mb-3">RISK METRICS</h3>
             <div className="grid grid-cols-2 gap-3">
               <MetricBox label="Risk/Reward" value={`1:${analysis.riskReward?.toFixed(1) || "—"}`} />
-              <MetricBox label="Lot Size" value={analysis.lotSize?.toFixed(2) || "—"} />
+              <MetricBox label="Lot Size" value="0.01 / $1,000" />
               <MetricBox label="Max Loss" value="$20.00" />
               <MetricBox label="Trade Type" value={analysis.tradeType} />
             </div>
-            <p className="text-xs text-dim mt-3 font-data">{analysis.lotCalculation}</p>
+            <p className="text-xs text-dim mt-3 font-data">Lot calculation: 0.01 lot per $1,000 account balance (fixed risk management rule)</p>
           </div>
 
           <div className="glass-panel rounded-lg p-5 gold-border-glow">
