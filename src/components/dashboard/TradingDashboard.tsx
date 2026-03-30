@@ -248,7 +248,7 @@ function renderSlide(index: number, analysis: any, data: any[]) {
     case 5: return <SlideFibonacci data={data} />;
     case 6: return <SlideIchimoku data={data} />;
     case 7: return <SlideMultiTimeframe data={data} />;
-    case 8: return <SlideTimingRisk analysis={analysis} />;
+    case 8: return <SlideTimingRisk analysis={analysis} data={data} />;
     case 9: return <SlideCompanyInfo />;
     default: return null;
   }

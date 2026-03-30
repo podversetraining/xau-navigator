@@ -1,4 +1,5 @@
 import type { AnalysisResult } from "@/types/analysis";
+import type { TimeframeData } from "@/lib/parseData";
 
 function isValidNumber(v: unknown): v is number {
   return typeof v === "number" && !isNaN(v) && v > 0;
@@ -10,42 +11,106 @@ function isValidStr(v: unknown): v is string {
   return lower.length > 0 && !lower.includes("invalid") && !lower.includes("unknown") && !lower.includes("cannot determine") && !lower.includes("no market data") && !lower.includes("html") && !lower.includes("authentication") && lower !== "—" && lower !== "-";
 }
 
-export function SlideTimingRisk({ analysis }: { analysis: AnalysisResult }) {
+function parseMarketTimestamp(value: string): Date | null {
+  const match = value.trim().match(/^(\d{4})\.(\d{2})\.(\d{2})\s+(\d{2}):(\d{2})$/);
+  if (!match) return null;
+
+  const [, year, month, day, hour, minute] = match;
+  return new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
+}
+
+function getMarketTiming(data: TimeframeData[], analysis: AnalysisResult) {
+  const source =
+    data.find((item) => item.timeframe.includes("M1")) ??
+    data[data.length - 1] ??
+    data.find((item) => isValidStr(item.time));
+
+  const rawTimestamp = source?.time || source?.currentCandle?.time || source?.lastCandle?.time || (isValidStr(analysis.timing?.dataTime) ? analysis.timing.dataTime : "");
+  const parsedTimestamp = isValidStr(rawTimestamp) ? parseMarketTimestamp(rawTimestamp) : null;
+  const hour = parsedTimestamp?.getHours() ?? -1;
+  const day = parsedTimestamp?.getDay() ?? -1;
+
+  const sessions = {
+    sydney: hour >= 1 && hour < 9,
+    tokyo: hour >= 4 && hour < 12,
+    london: hour >= 10 && hour < 19,
+    newYork: hour >= 15 && hour < 24,
+  };
+
+  const marketStatus = day === 0 || day === 6
+    ? "Weekend / limited market activity"
+    : sessions.london && sessions.newYork
+      ? "High-liquidity overlap session"
+      : sessions.london
+        ? "London session active"
+        : sessions.newYork
+          ? "New York session active"
+          : sessions.tokyo
+            ? "Asian session active"
+            : isValidStr(rawTimestamp)
+              ? "Live market data feed"
+              : isValidStr(analysis.timing?.marketStatus)
+                ? analysis.timing.marketStatus
+                : "";
+
+  const bestTradingWindow = day === 0 || day === 6
+    ? "Wait for weekday market reopening"
+    : sessions.london && sessions.newYork
+      ? "London & New York overlap — optimal liquidity now"
+      : sessions.london
+        ? "London session active — strongest move often comes near New York open"
+        : sessions.newYork
+          ? "New York session active — momentum and continuation setups favored"
+          : sessions.tokyo
+            ? "Asian session — wait for London for stronger gold liquidity"
+            : isValidStr(rawTimestamp)
+              ? "Monitor until London open for better execution quality"
+              : isValidStr(analysis.timing?.bestTradingTime)
+                ? analysis.timing.bestTradingTime
+                : "";
+
+  return {
+    timestampText: isValidStr(rawTimestamp) ? rawTimestamp : "",
+    marketStatus,
+    bestTradingWindow,
+    sessions,
+  };
+}
+
+export function SlideTimingRisk({ analysis, data }: { analysis: AnalysisResult; data: TimeframeData[] }) {
   const isWait = analysis.recommendation === "WAIT";
+  const timing = getMarketTiming(data, analysis);
 
   return (
     <div className="h-full flex flex-col gap-6 p-8">
       <h2 className="font-display text-lg tracking-widest text-dim">TIMING & RISK MANAGEMENT</h2>
 
       <div className="grid grid-cols-2 gap-6 flex-1">
-        {/* Timing */}
         <div className="glass-panel rounded-lg p-6 gold-border-glow">
           <h3 className="font-display text-sm tracking-widest text-gold mb-4">⏰ MARKET TIMING</h3>
           <div className="flex flex-col gap-4">
-            {isValidStr(analysis.timing?.dataTime) && (
-              <InfoBlock label="Data Timestamp" value={analysis.timing.dataTime} />
+            {isValidStr(timing.timestampText) && (
+              <InfoBlock label="Data Timestamp" value={timing.timestampText} />
             )}
-            {isValidStr(analysis.timing?.marketStatus) && (
-              <InfoBlock label="Market Status" value={analysis.timing.marketStatus} />
+            {isValidStr(timing.marketStatus) && (
+              <InfoBlock label="Market Status" value={timing.marketStatus} />
             )}
-            <InfoBlock
-              label="Best Trading Window"
-              value={isValidStr(analysis.timing?.bestTradingTime) ? analysis.timing.bestTradingTime : "London & NY overlap (15:00-19:00 Gulf Time)"}
-            />
+            {isValidStr(timing.bestTradingWindow) && (
+              <InfoBlock label="Best Trading Window" value={timing.bestTradingWindow} />
+            )}
 
             <div className="bg-secondary rounded-lg p-4 mt-2">
               <h4 className="text-xs text-gold font-display tracking-widest mb-2">TRADING SESSIONS (GULF TIME)</h4>
               <div className="flex flex-col gap-2 text-sm font-data">
-                <SessionRow name="Sydney" time="01:00 - 09:00" active={false} />
-                <SessionRow name="Tokyo" time="04:00 - 12:00" active={false} />
-                <SessionRow name="London" time="10:00 - 19:00" active />
-                <SessionRow name="New York" time="15:00 - 00:00" active />
+                <SessionRow name="Sydney" time="01:00 - 09:00" active={timing.sessions.sydney} />
+                <SessionRow name="Tokyo" time="04:00 - 12:00" active={timing.sessions.tokyo} />
+                <SessionRow name="London" time="10:00 - 19:00" active={timing.sessions.london} />
+                <SessionRow name="New York" time="15:00 - 00:00" active={timing.sessions.newYork} />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Risk Management */}
         <div className="flex flex-col gap-4">
           <div className="glass-panel rounded-lg p-6 gold-border-glow">
             <h3 className="font-display text-sm tracking-widest text-gold mb-4">💼 POSITION SIZING</h3>
