@@ -89,8 +89,8 @@ serve(async (req) => {
       });
     }
 
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -111,20 +111,19 @@ serve(async (req) => {
       });
     }
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 8192,
-        system: "You are a professional quantitative gold trading analyst. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data, unavailable indicators, HTML, authentication, or source errors.",
+        model: "google/gemini-2.5-flash",
         messages: [
+          { role: "system", content: "You are a professional quantitative gold trading analyst. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data, unavailable indicators, HTML, authentication, or source errors." },
           { role: "user", content: prompt },
         ],
+        response_format: { type: "json_object" },
       }),
     });
 
@@ -151,7 +150,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const content = data.content?.[0]?.text || "";
+    const content = data.choices?.[0]?.message?.content || "";
 
     // Try to parse JSON from the response
     let parsed;
