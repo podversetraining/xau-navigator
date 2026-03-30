@@ -112,14 +112,16 @@ serve(async (req) => {
       });
     }
 
-    const response = await fetch("https://api.lovable.dev/v1/chat/completions", {
+    const AI_MODEL = Deno.env.get("AI_MODEL") || "google/gemini-2.5-pro";
+
+    const response = await fetch(AI_API_URL, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Authorization": `Bearer ${AI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: AI_MODEL,
         messages: [
           { role: "system", content: "You are a professional quantitative gold trading analyst. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data, unavailable indicators, HTML, authentication, or source errors." },
           { role: "user", content: prompt },
