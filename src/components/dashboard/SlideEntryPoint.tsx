@@ -1,5 +1,6 @@
 import type { AnalysisResult } from "@/types/analysis";
 import type { TimeframeData } from "@/lib/parseData";
+import { isValidAiText } from "@/lib/sanitizeAi";
 
 function LevelRow({ label, value, current, type }: { label: string; value: number; current: number; type: "resistance" | "support" | "neutral" }) {
   const dist = value - current;
