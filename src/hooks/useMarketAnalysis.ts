@@ -11,6 +11,7 @@ export function useMarketAnalysis() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [runningAnalysis, setRunningAnalysis] = useState(false);
   const [nextAnalysis, setNextAnalysis] = useState<Date | null>(null);
   const [rawData, setRawData] = useState<string>("");
   const lastTriggeredSlotRef = useRef<string | null>(null);
