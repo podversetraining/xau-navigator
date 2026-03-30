@@ -336,7 +336,7 @@ export function TradingDashboard() {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             className="absolute inset-0"
           >
-          {displayAnalysis && renderSlide(currentSlide, displayAnalysis, marketData)}
+          {safeAnalysis && renderSlide(currentSlide, safeAnalysis, marketData)}
           </motion.div>
         </AnimatePresence>
       </div>
