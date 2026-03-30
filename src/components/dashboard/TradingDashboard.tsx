@@ -143,7 +143,7 @@ export function TradingDashboard() {
       {/* Footer */}
       <div className="px-8 py-2 border-t border-border flex items-center justify-between">
         <span className="text-dim text-xs font-data">
-          ARAB GLOBAL SECURITIES — Institutional Trading Desk • XAUUSD Analysis System
+          ARAB GLOBAL SECURITIES — AI Quantitative Analysis Desk • XAUUSD Analysis System
         </span>
         <div className="flex items-center gap-4">
           <span className="text-dim text-xs font-data">
