@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { parseMarketData, type TimeframeData } from "@/lib/parseData";
 import type { AnalysisResult } from "@/types/analysis";
 import { supabase } from "@/integrations/supabase/client";
+import { hasValidMarketDataPayload, isUsableAnalysis } from "@/lib/analysisValidation";
 
 export function useMarketAnalysis() {
   const [marketData, setMarketData] = useState<TimeframeData[]>([]);
@@ -12,12 +13,18 @@ export function useMarketAnalysis() {
   const [analyzing, setAnalyzing] = useState(false);
   const [nextAnalysis, setNextAnalysis] = useState<Date | null>(null);
   const [rawData, setRawData] = useState<string>("");
+  const lastTriggeredSlotRef = useRef<string | null>(null);
+  const recoveryRunStartedRef = useRef(false);
 
   // Fetch local market data file (updates every minute from platform)
   const fetchData = useCallback(async () => {
     try {
       const res = await fetch("/data/XAUUSDm_Complete_Data.txt?t=" + Date.now());
       const text = await res.text();
+      if (!hasValidMarketDataPayload(text)) {
+        console.error("Market data source returned invalid content");
+        return;
+      }
       setRawData(text);
       const parsed = parseMarketData(text);
       setMarketData(parsed);
@@ -33,22 +40,29 @@ export function useMarketAnalysis() {
         .from("gold_analysis")
         .select("analysis, created_at")
         .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
+        .limit(20);
 
       if (dbError) {
         if (dbError.code === "PGRST116") {
-          // No rows yet - first time, no analysis available
-          setError("No analysis available yet. Waiting for the first hourly analysis...");
+          setError("No analysis available yet. Waiting for the first 5-minute analysis...");
           setLoading(false);
           return;
         }
         throw dbError;
       }
 
-      if (data) {
-        setAnalysis(data.analysis as unknown as AnalysisResult);
-        setLastUpdate(new Date(data.created_at));
+      const latestValid = data?.find((row) => isUsableAnalysis(row.analysis));
+
+      if (latestValid) {
+        const validAnalysis = latestValid.analysis as unknown as AnalysisResult;
+        setAnalysis(validAnalysis);
+        setLastUpdate(new Date(latestValid.created_at));
+        setError(null);
+      } else if (!data?.length) {
+        setError("No analysis available yet. Waiting for the first 5-minute analysis...");
+      } else {
+        setAnalysis(null);
+        setLastUpdate(null);
         setError(null);
       }
     } catch (err) {
@@ -81,6 +95,7 @@ export function useMarketAnalysis() {
   useEffect(() => {
     const interval = setInterval(() => {
       fetchData();
+
       if (!nextAnalysis) {
         setAnalyzing(false);
         return;
@@ -88,10 +103,18 @@ export function useMarketAnalysis() {
 
       const diff = nextAnalysis.getTime() - Date.now();
       setAnalyzing(diff <= 10000 && diff > 0);
+
+      if (diff <= 0 && hasValidMarketDataPayload(rawData)) {
+        const slotKey = nextAnalysis.toISOString();
+        if (lastTriggeredSlotRef.current !== slotKey) {
+          lastTriggeredSlotRef.current = slotKey;
+          void runAnalysis(rawData);
+        }
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [fetchData, nextAnalysis]);
+  }, [fetchData, nextAnalysis, rawData]);
 
   // Subscribe to realtime updates on gold_analysis table
   useEffect(() => {
@@ -106,7 +129,13 @@ export function useMarketAnalysis() {
         },
         (payload) => {
           const newRow = payload.new as { analysis: unknown; created_at: string };
-          setAnalysis(newRow.analysis as AnalysisResult);
+          if (!isUsableAnalysis(newRow.analysis)) {
+            console.warn("Ignoring invalid analysis payload from realtime update");
+            return;
+          }
+
+          const validAnalysis = newRow.analysis as unknown as AnalysisResult;
+          setAnalysis(validAnalysis);
           setLastUpdate(new Date(newRow.created_at));
           setError(null);
           setLoading(false);
@@ -119,7 +148,53 @@ export function useMarketAnalysis() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [updateNextAnalysis]);
+
+  const runAnalysis = useCallback(async (providedRawData?: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      let text = providedRawData && hasValidMarketDataPayload(providedRawData) ? providedRawData : rawData;
+
+      if (!hasValidMarketDataPayload(text)) {
+        const res = await fetch("/data/XAUUSDm_Complete_Data.txt?t=" + Date.now());
+        text = await res.text();
+      }
+
+      if (!hasValidMarketDataPayload(text)) {
+        throw new Error("Invalid market data payload");
+      }
+
+      const { buildAnalysisPrompt } = await import("@/lib/analysisPrompt");
+      const prompt = buildAnalysisPrompt(text);
+      const { data: result, error: fnError } = await supabase.functions.invoke("analyze-gold", {
+        body: { prompt, rawData: text },
+      });
+
+      if (fnError) throw fnError;
+      if (result?.error) throw new Error(result.error);
+
+      if (isUsableAnalysis(result)) {
+        setAnalysis(result);
+        setLastUpdate(new Date());
+        setError(null);
+      }
+    } catch (err) {
+      console.error("Analysis error:", err);
+      setError(null);
+      setLoading(false);
+    }
+  }, [rawData]);
+
+  useEffect(() => {
+    if (loading || analysis || !hasValidMarketDataPayload(rawData) || recoveryRunStartedRef.current) {
+      return;
+    }
+
+    recoveryRunStartedRef.current = true;
+    void runAnalysis(rawData);
+  }, [analysis, loading, rawData, runAnalysis]);
 
   return {
     marketData,
@@ -130,26 +205,6 @@ export function useMarketAnalysis() {
     rawData,
     analyzing,
     nextAnalysis,
-    runAnalysis: async () => {
-      // Manual trigger kept for admin use
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch("/data/XAUUSDm_Complete_Data.txt?t=" + Date.now());
-        const text = await res.text();
-        const { buildAnalysisPrompt } = await import("@/lib/analysisPrompt");
-        const prompt = buildAnalysisPrompt(text);
-        const { data: result, error: fnError } = await supabase.functions.invoke("analyze-gold", {
-          body: { prompt },
-        });
-        if (fnError) throw fnError;
-        if (result?.error) setError(result.error);
-        // Result will arrive via realtime subscription
-      } catch (err) {
-        console.error("Manual analysis error:", err);
-        setError("Analysis failed");
-        setLoading(false);
-      }
-    },
+    runAnalysis,
   };
 }

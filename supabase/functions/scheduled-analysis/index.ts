@@ -6,6 +6,62 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const invalidSourcePatterns = [/<!doctype html/i, /<html/i, /authentication page/i, /sign in/i, /login/i, /auth/i];
+const invalidAnalysisPatterns = [
+  /insufficient data/i,
+  /no (?:technical |market |indicator )?data (?:is )?(?:available|provided)/i,
+  /cannot (?:perform|determine|analyze|assess)/i,
+  /unable to (?:analyze|determine)/i,
+  /html markup/i,
+  /authentication page/i,
+  /lacks all required technical indicators/i,
+  /timestamp not available/i,
+];
+
+function hasValidMarketDataPayload(rawData: string): boolean {
+  const trimmed = rawData.trim();
+
+  if (!trimmed) return false;
+  if (invalidSourcePatterns.some((pattern) => pattern.test(trimmed))) return false;
+
+  return (
+    trimmed.includes("--- Timeframe:") &&
+    /EMA_8:/i.test(trimmed) &&
+    /RSI:/i.test(trimmed) &&
+    /MACD:/i.test(trimmed) &&
+    /ATR:/i.test(trimmed)
+  );
+}
+
+function containsInvalidAnalysisText(value: unknown): boolean {
+  if (typeof value === "string") {
+    return invalidAnalysisPatterns.some((pattern) => pattern.test(value.trim()));
+  }
+
+  if (Array.isArray(value)) return value.some(containsInvalidAnalysisText);
+  if (value && typeof value === "object") return Object.values(value).some(containsInvalidAnalysisText);
+
+  return false;
+}
+
+function isUsableAnalysis(value: unknown): boolean {
+  if (!value || typeof value !== "object") return false;
+
+  const analysis = value as {
+    recommendation?: unknown;
+    marketOverview?: { summary?: unknown; timeframes?: unknown[] };
+  };
+
+  return (
+    ["BUY", "SELL", "WAIT"].includes(String(analysis.recommendation)) &&
+    typeof analysis.marketOverview?.summary === "string" &&
+    analysis.marketOverview.summary.trim().length > 0 &&
+    Array.isArray(analysis.marketOverview?.timeframes) &&
+    analysis.marketOverview.timeframes.length > 0 &&
+    !containsInvalidAnalysisText(value)
+  );
+}
+
 function buildPrompt(rawData: string): string {
   return `You are a professional quantitative analyst specializing in Gold trading (XAUUSD).
 
@@ -48,7 +104,7 @@ RESPOND IN THIS EXACT JSON FORMAT (no markdown, no code blocks, just raw JSON):
   "lotCalculation": "0.01 lot per $1,000 account balance",
   "marketOverview": {
     "overallBias": "Bullish" or "Bearish" or "Neutral",
-    "summary": "2-3 sentence market overview explaining the current state",
+    "summary": "4-5 sentence professional market narrative covering all timeframes, market structure, momentum tone, volatility regime, and execution bias",
     "timeframes": [
       {"timeframe": "D1", "trend": "Bullish/Bearish/Sideways", "momentum": "Bullish/Bearish/Neutral", "strength": 0-100, "keySignal": "short description"},
       {"timeframe": "H4", "trend": "...", "momentum": "...", "strength": 0-100, "keySignal": "..."},
@@ -109,10 +165,11 @@ RESPOND IN THIS EXACT JSON FORMAT (no markdown, no code blocks, just raw JSON):
 }
 
 CRITICAL RULES:
-1. USE the actual indicator values from the data below. Do NOT say "no data available" or "unable to analyze"
-2. Every field must have meaningful content derived from the actual data
-3. If recommendation is WAIT, still fill all analysis fields with actual market observations
-4. All number fields must have real values from the data
+1. USE the actual indicator values from the data below.
+2. NEVER mention missing data, unavailable indicators, HTML, authentication pages, or source errors.
+3. marketOverview.summary must be an AI-written market state narrative, not a raw indicator list.
+4. If recommendation is WAIT, set entry, stopLoss, tp1, tp2, tp3, and riskReward to 0 and explain the wait state only through analysis text.
+5. Every field must have meaningful content derived from the actual data.
 
 DATA:
 ${rawData}`;
@@ -126,6 +183,7 @@ serve(async (req) => {
     const dataRes = await fetch(`${APP_URL}/data/XAUUSDm_Complete_Data.txt?t=${Date.now()}`);
     if (!dataRes.ok) throw new Error("Failed to fetch market data from app");
     const rawData = await dataRes.text();
+    if (!hasValidMarketDataPayload(rawData)) throw new Error("Market data source returned invalid HTML/auth content");
 
     const prompt = buildPrompt(rawData);
 
@@ -177,6 +235,10 @@ serve(async (req) => {
       parsed = JSON.parse(cleaned);
     } catch {
       parsed = { raw: content, error: "Failed to parse AI response as JSON" };
+    }
+
+    if (!isUsableAnalysis(parsed)) {
+      throw new Error("AI returned an invalid analysis payload");
     }
 
     const { error: dbError } = await supabase
