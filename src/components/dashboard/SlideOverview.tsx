@@ -27,7 +27,7 @@ function isValidNumber(v: unknown): v is number {
   return typeof v === "number" && !isNaN(v) && v > 0;
 }
 
-function isValidStr(v: unknown): v is string {
+function isValidAiText(v: unknown): v is string {
   if (typeof v !== "string") return false;
   const lower = v.toLowerCase().trim();
   return lower.length > 0 && !lower.includes("invalid") && !lower.includes("unknown") && !lower.includes("cannot determine") && !lower.includes("no market data") && lower !== "—" && lower !== "-";
@@ -122,7 +122,7 @@ export function SlideOverview({ analysis, data }: { analysis: AnalysisResult; da
           <div className="glass-panel rounded-lg p-5 gold-border-glow flex flex-col items-center justify-center">
             <h3 className="font-display text-xs tracking-widest text-gold mb-4">MARKET STATUS</h3>
             <p className="text-foreground text-sm font-data text-center">
-              {isValidStr(analysis.timing?.marketStatus) ? analysis.timing.marketStatus : "Analysis active — monitoring market conditions"}
+              {isValidAiText(analysis.timing?.marketStatus) ? analysis.timing.marketStatus : "Analysis active — monitoring market conditions"}
             </p>
           </div>
         )}
