@@ -2,95 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 220 20% 4%;
+    --foreground: 45 30% 92%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 220 18% 7%;
+    --card-foreground: 45 30% 92%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 18% 7%;
+    --popover-foreground: 45 30% 92%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 43 96% 56%;
+    --primary-foreground: 220 20% 4%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 15% 12%;
+    --secondary-foreground: 45 20% 80%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 15% 10%;
+    --muted-foreground: 220 10% 50%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 43 80% 45%;
+    --accent-foreground: 220 20% 4%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --success: 142 72% 45%;
+    --success-foreground: 142 72% 90%;
 
-    --radius: 0.5rem;
+    --border: 220 15% 15%;
+    --input: 220 15% 15%;
+    --ring: 43 96% 56%;
 
-    --sidebar-background: 0 0% 98%;
+    --radius: 0.75rem;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Custom trading tokens */
+    --gold: 43 96% 56%;
+    --gold-dim: 43 60% 35%;
+    --gold-glow: 43 100% 70%;
+    --gold-gradient: linear-gradient(135deg, hsl(43 96% 56%), hsl(35 100% 45%));
+    --dark-surface: 220 18% 7%;
+    --dark-elevated: 220 16% 10%;
+    --dark-border: 220 15% 15%;
+    --chart-bullish: 142 72% 45%;
+    --chart-bearish: 0 72% 51%;
+    --text-dim: 220 10% 45%;
+    --text-bright: 45 30% 95%;
+    --glass-bg: hsla(220, 18%, 8%, 0.85);
+    --glass-border: hsla(43, 60%, 40%, 0.15);
 
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 220 18% 5%;
+    --sidebar-foreground: 45 20% 80%;
+    --sidebar-primary: 43 96% 56%;
+    --sidebar-primary-foreground: 220 20% 4%;
+    --sidebar-accent: 220 15% 12%;
+    --sidebar-accent-foreground: 45 20% 80%;
+    --sidebar-border: 220 15% 15%;
+    --sidebar-ring: 43 96% 56%;
   }
 }
 
@@ -101,5 +72,152 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Rajdhani', sans-serif;
   }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  .font-body {
+    font-family: 'Rajdhani', sans-serif;
+  }
+
+  .font-data {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .text-gold {
+    color: hsl(var(--gold));
+  }
+
+  .text-gold-dim {
+    color: hsl(var(--gold-dim));
+  }
+
+  .text-gold-glow {
+    color: hsl(var(--gold-glow));
+  }
+
+  .bg-gold {
+    background-color: hsl(var(--gold));
+  }
+
+  .bg-gold-dim {
+    background-color: hsl(var(--gold-dim));
+  }
+
+  .bg-dark-surface {
+    background-color: hsl(var(--dark-surface));
+  }
+
+  .bg-dark-elevated {
+    background-color: hsl(var(--dark-elevated));
+  }
+
+  .border-gold {
+    border-color: hsl(var(--gold));
+  }
+
+  .border-gold-dim {
+    border-color: hsl(var(--gold-dim));
+  }
+
+  .text-bullish {
+    color: hsl(var(--chart-bullish));
+  }
+
+  .text-bearish {
+    color: hsl(var(--chart-bearish));
+  }
+
+  .bg-bullish {
+    background-color: hsl(var(--chart-bullish));
+  }
+
+  .bg-bearish {
+    background-color: hsl(var(--chart-bearish));
+  }
+
+  .text-dim {
+    color: hsl(var(--text-dim));
+  }
+
+  .text-bright {
+    color: hsl(var(--text-bright));
+  }
+
+  .glass-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+  }
+
+  .gold-gradient-text {
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gold-gradient-bg {
+    background: var(--gold-gradient);
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 20px hsla(43, 96%, 56%, 0.15), 0 0 40px hsla(43, 96%, 56%, 0.05);
+  }
+
+  .gold-glow-strong {
+    box-shadow: 0 0 30px hsla(43, 96%, 56%, 0.25), 0 0 60px hsla(43, 96%, 56%, 0.1);
+  }
+
+  .gold-border-glow {
+    border: 1px solid hsla(43, 96%, 56%, 0.3);
+    box-shadow: inset 0 0 20px hsla(43, 96%, 56%, 0.05);
+  }
+
+  .slide-transition {
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--dark-surface));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--gold-dim));
+  border-radius: 4px;
+}
+
+/* Pulse animation for live indicator */
+@keyframes pulse-gold {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, hsla(43, 96%, 56%, 0.1) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes slide-progress {
+  from { width: 0%; }
+  to { width: 100%; }
 }
