@@ -73,7 +73,7 @@ function getMarketTiming(data: TimeframeData[], analysis: AnalysisResult) {
                 : "";
 
   return {
-    timestampText: isValidStr(rawTimestamp) ? rawTimestamp : "",
+    timestampText: isValidStr(rawTimestamp) ? `${rawTimestamp} GMT → ${gulfHour >= 0 ? String(gulfHour).padStart(2, "0") + ":" + String(parsedTimestamp!.getMinutes()).padStart(2, "0") + " Gulf Time" : ""}` : "",
     marketStatus,
     bestTradingWindow,
     sessions,
