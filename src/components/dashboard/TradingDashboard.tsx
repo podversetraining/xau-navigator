@@ -11,6 +11,7 @@ import { SlideFibonacci } from "./SlideFibonacci";
 import { SlideIchimoku } from "./SlideIchimoku";
 import { SlideMultiTimeframe } from "./SlideMultiTimeframe";
 import { SlideTimingRisk } from "./SlideTimingRisk";
+import { SlideCompanyInfo } from "./SlideCompanyInfo";
 
 const SLIDE_DURATION = 15000; // 15 seconds per slide
 
@@ -24,6 +25,7 @@ const SLIDES = [
   { id: "ichimoku", label: "ICHIMOKU" },
   { id: "matrix", label: "MATRIX" },
   { id: "timing", label: "TIMING" },
+  { id: "company", label: "ABOUT US" },
 ];
 
 export function TradingDashboard() {
@@ -143,7 +145,7 @@ export function TradingDashboard() {
       {/* Footer */}
       <div className="px-8 py-2 border-t border-border flex items-center justify-between">
         <span className="text-dim text-xs font-data">
-          ARAB GLOBAL SECURITIES — Institutional Trading Desk • XAUUSD Analysis System
+          ARAB GLOBAL SECURITIES — AI Quantitative Analysis Desk • XAUUSD Analysis System
         </span>
         <div className="flex items-center gap-4">
           <span className="text-dim text-xs font-data">
@@ -167,6 +169,7 @@ function renderSlide(index: number, analysis: any, data: any[]) {
     case 6: return <SlideIchimoku data={data} />;
     case 7: return <SlideMultiTimeframe data={data} />;
     case 8: return <SlideTimingRisk analysis={analysis} />;
+    case 9: return <SlideCompanyInfo />;
     default: return null;
   }
 }
