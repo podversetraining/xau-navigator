@@ -6,7 +6,7 @@ export function DashboardHeader({ price, time, loading }: { price: number; time:
       <div className="flex items-center gap-6">
         <div className="flex flex-col">
           <span className="font-display text-xl tracking-wider gold-gradient-text font-bold">
-            ARAB GLOBAL SECURITIES
+            ARAB GLOBAL CAPITAL
           </span>
           <span className="text-dim text-sm font-body tracking-widest">
             INSTITUTIONAL TRADING DESK
