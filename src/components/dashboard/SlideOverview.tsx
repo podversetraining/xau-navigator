@@ -27,11 +27,6 @@ function isValidNumber(v: unknown): v is number {
   return typeof v === "number" && !isNaN(v) && v > 0;
 }
 
-function isValidAiText(v: unknown): v is string {
-  if (typeof v !== "string") return false;
-  const lower = v.toLowerCase().trim();
-  return lower.length > 0 && !lower.includes("invalid") && !lower.includes("unknown") && !lower.includes("cannot determine") && !lower.includes("no market data") && lower !== "—" && lower !== "-";
-}
 
 export function SlideOverview({ analysis, data }: { analysis: AnalysisResult; data: TimeframeData[] }) {
   const isWait = analysis.recommendation === "WAIT";
