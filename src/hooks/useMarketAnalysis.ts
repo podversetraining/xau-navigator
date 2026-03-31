@@ -27,9 +27,10 @@ const INITIAL: BroadcastState = {
 };
 
 function rowToBroadcast(row: Record<string, unknown>): BroadcastState {
+  const status = (row.status as BroadcastStatus) || "maintenance";
   return {
-    status: (row.status as BroadcastStatus) || "maintenance",
-    analysis: row.analysis as AnalysisResult | null,
+    status,
+    analysis: status === "live" ? (row.analysis as AnalysisResult | null) : null,
     error: (row.error as string) || null,
     currentSlide: (row.current_slide as number) || 0,
     slideStartedAt: new Date((row.slide_started_at as string) || Date.now()),

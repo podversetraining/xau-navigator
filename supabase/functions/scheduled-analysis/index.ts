@@ -6,6 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const BROADCAST_ID = "global";
+const MODEL_NAME = "claude-opus-4-20250514";
+const SLOTS = [1, 16, 31, 46] as const;
+
 const invalidSourcePatterns = [/<!doctype html/i, /<html/i, /authentication page/i, /sign in/i, /login/i, /auth/i];
 const invalidAnalysisPatterns = [
   /insufficient data/i,
@@ -48,6 +52,19 @@ function isUsableAnalysis(value: unknown): boolean {
 const FULL_PROMPT = `You are a professional quantitative analyst specializing in Gold trading (XAUUSD) using a multi-layer analysis system.
 
 The data below contains COMPLETE technical indicator data for 7 timeframes (D1, H4, H1, M30, M15, M5, M1) with 90+ indicators each. READ ALL THE DATA CAREFULLY.
+
+DETERMINISM MANDATE:
+- The same input data MUST produce the same JSON output every time.
+- Use a fixed rule-based process only. No creativity, no discretionary re-weighting, no random judgment.
+- For each referenced indicator, classify it as Bullish, Bearish, or Neutral strictly from its numeric value or explicit state in the input.
+- Ignore Neutral votes in directional majority.
+- For each layer, count Bullish votes and Bearish votes separately.
+- Layer direction rule: if Bullish votes > Bearish votes, direction = Bullish. If Bearish votes > Bullish votes, direction = Bearish. If equal, direction = Neutral/Sideways.
+- Layer strength rule: round((winning directional votes / max(1, bullish votes + bearish votes)) * 100).
+- Layer points rule: layer1 points = round(layer1 strength * 0.40), layer2 points = round(layer2 strength * 0.35), layer3 points = round(layer3 strength * 0.25).
+- Total score rule: total = layer1 points + layer2 points + layer3 points.
+- Final recommendation rule is strict: WAIT if total < 50. BUY only if layer 1 is Bullish and layer 2 is Bullish and layer 3 is Bullish or Neutral. SELL only if layer 1 is Bearish and layer 2 is Bearish and layer 3 is Bearish or Neutral. Otherwise WAIT.
+- Never alternate BUY, SELL, or WAIT for identical input.
 
 CORE PRINCIPLE:
 - Do NOT require all indicators to agree (that kills trades)
@@ -155,6 +172,60 @@ CRITICAL RULES:
 DATA:
 {{DATA}}`;
 
+type AnalysisRecord = Record<string, unknown>;
+
+function getNextScheduledTime(from = new Date()): string {
+  const min = from.getMinutes();
+  const nextSlot = SLOTS.find((slot) => slot > min) ?? SLOTS[0];
+  const next = new Date(from);
+  if (nextSlot <= min) next.setHours(next.getHours() + 1);
+  next.setMinutes(nextSlot, 0, 0);
+  next.setSeconds(0, 0);
+  return next.toISOString();
+}
+
+async function sha256Base64(value: string): Promise<string> {
+  const hashBuffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
+}
+
+function extractInputHash(value: unknown): string | null {
+  if (!value || typeof value !== "object") return null;
+  const meta = (value as Record<string, unknown>)._meta;
+  if (!meta || typeof meta !== "object") return null;
+  const inputHash = (meta as Record<string, unknown>).inputHash;
+  return typeof inputHash === "string" ? inputHash : null;
+}
+
+function attachMeta(analysis: AnalysisRecord, inputHash: string): AnalysisRecord {
+  const existingMeta = analysis._meta;
+  const safeMeta = existingMeta && typeof existingMeta === "object" ? existingMeta as Record<string, unknown> : {};
+
+  return {
+    ...analysis,
+    _meta: {
+      ...safeMeta,
+      inputHash,
+      model: MODEL_NAME,
+      generatedAt: new Date().toISOString(),
+    },
+  };
+}
+
+async function setBroadcast(supabase: ReturnType<typeof createClient>, patch: Record<string, unknown>) {
+  const payload: Record<string, unknown> = {
+    id: BROADCAST_ID,
+    updated_at: new Date().toISOString(),
+    ...patch,
+  };
+
+  if (!Object.prototype.hasOwnProperty.call(payload, "next_update_at")) {
+    payload.next_update_at = getNextScheduledTime();
+  }
+
+  await supabase.from("broadcast_state").upsert(payload);
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -172,14 +243,65 @@ serve(async (req) => {
 
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const inputHash = await sha256Base64(rawData);
 
     console.log("Starting scheduled gold analysis...");
     console.log("Data length:", rawData.length, "chars");
 
+    const { data: currentBroadcast } = await supabase
+      .from("broadcast_state")
+      .select("status, analysis, slide_started_at")
+      .eq("id", BROADCAST_ID)
+      .maybeSingle();
+
+    const currentAnalysis = currentBroadcast?.analysis;
+    if (
+      currentBroadcast?.status === "live" &&
+      currentAnalysis &&
+      extractInputHash(currentAnalysis) === inputHash &&
+      isUsableAnalysis(currentAnalysis)
+    ) {
+      await setBroadcast(supabase, {
+        status: "live",
+        analysis: currentAnalysis,
+        error: null,
+        slide_started_at: currentBroadcast.slide_started_at,
+      });
+      console.log("Reused current broadcast analysis for identical market snapshot");
+      return new Response(JSON.stringify({ success: true, cached: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { data: latestCached } = await supabase
+      .from("gold_analysis")
+      .select("analysis")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const cachedAnalysis = latestCached?.analysis;
+    if (cachedAnalysis && extractInputHash(cachedAnalysis) === inputHash && isUsableAnalysis(cachedAnalysis)) {
+      await setBroadcast(supabase, {
+        status: "live",
+        analysis: cachedAnalysis,
+        error: null,
+        current_slide: 0,
+        slide_started_at: new Date().toISOString(),
+      });
+      console.log("Reused cached analysis from database for identical market snapshot");
+      return new Response(JSON.stringify({ success: true, cached: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Set broadcast to UPDATING
-    await supabase.from("broadcast_state").upsert({
-      id: "global", status: "updating", error: null, current_slide: 0,
-      slide_started_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+    await setBroadcast(supabase, {
+      status: "updating",
+      analysis: null,
+      error: null,
+      current_slide: 0,
+      slide_started_at: new Date().toISOString(),
     });
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -190,9 +312,10 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: MODEL_NAME,
         max_tokens: 8192,
-        system: "You are a professional quantitative gold trading analyst. You MUST analyze all the provided technical indicator data carefully and cite actual values. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data or source errors.",
+        temperature: 0,
+        system: "You are a professional quantitative gold trading analyst. You MUST analyze all the provided technical indicator data carefully and cite actual values. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data or source errors. Same input must produce the same output.",
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -200,9 +323,10 @@ serve(async (req) => {
     if (!response.ok) {
       const t = await response.text();
       console.error("AI API error:", response.status, t);
-      await supabase.from("broadcast_state").upsert({
-        id: "global", status: "maintenance", analysis: null,
-        error: "AI service unavailable", updated_at: new Date().toISOString(),
+      await setBroadcast(supabase, {
+        status: "maintenance",
+        analysis: null,
+        error: "AI service unavailable",
       });
       return new Response(JSON.stringify({ error: "AI API error", status: response.status }), {
         status: 200,
@@ -221,33 +345,30 @@ serve(async (req) => {
       }
       parsed = JSON.parse(cleaned);
     } catch {
-      parsed = { raw: content, error: "Failed to parse AI response as JSON" };
+      parsed = null;
     }
 
     if (!isUsableAnalysis(parsed)) {
-      await supabase.from("broadcast_state").upsert({
-        id: "global", status: "maintenance", analysis: null,
-        error: "Quality check failed", updated_at: new Date().toISOString(),
+      await setBroadcast(supabase, {
+        status: "maintenance",
+        analysis: null,
+        error: "Quality check failed",
       });
       return new Response(JSON.stringify({ error: "Quality failed" }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    await supabase.from("gold_analysis").insert({ analysis: parsed });
+    const normalizedAnalysis = attachMeta(parsed as AnalysisRecord, inputHash);
 
-    const now2 = new Date();
-    const slots = [1, 16, 31, 46];
-    const curMin = now2.getMinutes();
-    const nextSlot = slots.find(s => s > curMin) ?? slots[0];
-    const nxt = new Date(now2);
-    if (nextSlot <= curMin) nxt.setHours(nxt.getHours() + 1);
-    nxt.setMinutes(nextSlot, 0, 0);
+    await supabase.from("gold_analysis").insert({ analysis: normalizedAnalysis });
 
-    await supabase.from("broadcast_state").upsert({
-      id: "global", status: "live", analysis: parsed, error: null,
-      current_slide: 0, slide_started_at: new Date().toISOString(),
-      next_update_at: nxt.toISOString(), updated_at: new Date().toISOString(),
+    await setBroadcast(supabase, {
+      status: "live",
+      analysis: normalizedAnalysis,
+      error: null,
+      current_slide: 0,
+      slide_started_at: new Date().toISOString(),
     });
     console.log("Broadcast set to LIVE");
 
@@ -258,9 +379,10 @@ serve(async (req) => {
     console.error("scheduled-analysis error:", e);
     try {
       const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-      await sb.from("broadcast_state").upsert({
-        id: "global", status: "maintenance", analysis: null,
-        error: String(e), updated_at: new Date().toISOString(),
+      await setBroadcast(sb, {
+        status: "maintenance",
+        analysis: null,
+        error: String(e),
       });
     } catch {}
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {

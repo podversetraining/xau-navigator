@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMarketAnalysis } from "@/hooks/useMarketAnalysis";
+import { getNextAnalysisTime } from "@/lib/analysisCycle";
 import { DashboardHeader } from "./DashboardHeader";
 import { SlideOverview } from "./SlideOverview";
 import { SlideTrendAnalysis } from "./SlideTrendAnalysis";
@@ -15,6 +16,7 @@ import { SlideCompanyInfo } from "./SlideCompanyInfo";
 import { SlideMarketOverview } from "./SlideMarketOverview";
 
 const SLIDE_DURATION = 15000;
+const VALID_ANALYSIS_MINUTES = new Set([1, 16, 31, 46]);
 
 const SLIDES = [
   { id: "overview", label: "OVERVIEW" },
@@ -43,20 +45,11 @@ export function TradingDashboard() {
   // Countdown to next update
   useEffect(() => {
     const calcCountdown = () => {
-      let target = nextUpdateAt ? nextUpdateAt.getTime() : 0;
       const now = Date.now();
-      // If target is in the past or not set, compute next slot dynamically
-      if (!target || target <= now) {
-        const d = new Date();
-        const min = d.getMinutes();
-        const slots = [1, 16, 31, 46];
-        const nextSlot = slots.find(s => s > min) ?? slots[0];
-        const nxt = new Date(d);
-        if (nextSlot <= min) nxt.setHours(nxt.getHours() + 1);
-        nxt.setMinutes(nextSlot, 0, 0);
-        nxt.setSeconds(0, 0);
-        target = nxt.getTime();
-      }
+      const scheduledTarget = nextUpdateAt && VALID_ANALYSIS_MINUTES.has(nextUpdateAt.getMinutes())
+        ? nextUpdateAt
+        : getNextAnalysisTime(new Date());
+      const target = scheduledTarget.getTime() > now ? scheduledTarget.getTime() : getNextAnalysisTime(new Date()).getTime();
       const diff = Math.max(0, target - Date.now());
       const m = Math.floor(diff / 60000);
       const s = Math.floor((diff % 60000) / 1000);
@@ -65,7 +58,7 @@ export function TradingDashboard() {
     calcCountdown();
     const timer = setInterval(calcCountdown, 1000);
     return () => clearInterval(timer);
-  }, [nextUpdateAt]);
+  }, [nextUpdateAt, updatedAt, status]);
 
   // Reset progress when entering updating state
   useEffect(() => {
