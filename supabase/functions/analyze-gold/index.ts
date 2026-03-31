@@ -66,7 +66,7 @@ serve(async (req) => {
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "x-api-key": KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-        body: JSON.stringify({ body: JSON.stringify({ model: "claude-opus-4-20250514", max_tokens: 8192, system: "You are a professional quantitative gold trading analyst. Respond with valid JSON only. Never mention missing data.", messages: [{ role: "user", content: prompt }] }),, max_tokens: 8192, system: "You are a professional quantitative gold trading analyst. Respond with valid JSON only. Never mention missing data.", messages: [{ role: "user", content: prompt }] }),
+        body: JSON.stringify({ model: "claude-opus-4-20250514", max_tokens: 8192, system: "You are a professional quantitative gold trading analyst. Respond with valid JSON only. Never mention missing data.", messages: [{ role: "user", content: prompt }] }),
       });
       if (!res.ok) {
         console.error("AI error:", res.status, await res.text().catch(() => ""));
