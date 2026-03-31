@@ -247,7 +247,7 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const dataRes = await fetch(`${supabaseUrl}/storage/v1/object/public/market-data/XAUUSDm_Complete_Data.txt?t=${Date.now()}`);
+    const dataRes = await fetch(`http://88.99.64.228/XAUUSDm_Complete_Data.txt?t=${Date.now()}`);
     if (!dataRes.ok) throw new Error("Failed to fetch market data from storage");
     const rawData = await dataRes.text();
     if (!hasValidMarketDataPayload(rawData)) throw new Error("Market data source returned invalid HTML/auth content");
