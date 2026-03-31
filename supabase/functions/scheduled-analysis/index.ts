@@ -236,9 +236,13 @@ serve(async (req) => {
 
     await supabase.from("gold_analysis").insert({ analysis: parsed });
 
-    const now2 = new Date(), nxt = new Date(now2);
-    nxt.setMinutes(Math.ceil((now2.getMinutes() + 1) / 5) * 5, 0, 0);
-    if (nxt <= now2) nxt.setMinutes(nxt.getMinutes() + 5);
+    const now2 = new Date();
+    const slots = [1, 16, 31, 46];
+    const curMin = now2.getMinutes();
+    const nextSlot = slots.find(s => s > curMin) ?? slots[0];
+    const nxt = new Date(now2);
+    if (nextSlot <= curMin) nxt.setHours(nxt.getHours() + 1);
+    nxt.setMinutes(nextSlot, 0, 0);
 
     await supabase.from("broadcast_state").upsert({
       id: "global", status: "live", analysis: parsed, error: null,
