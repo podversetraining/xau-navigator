@@ -6,16 +6,38 @@ export interface TimeframeSummary {
   keySignal: string;
 }
 
+export interface LayerVotes {
+  bullish: number;
+  bearish: number;
+  neutral: number;
+}
+
+export interface FiltersApplied {
+  volumeConfirmation: "PASS" | "FAIL" | "EXEMPT_SESSION_OPEN";
+  trendMomentumAlignment: "PASS" | "FAIL";
+  exhaustionGuard: "PASS" | "FAIL";
+  bollingerSqueeze: "PASS" | "FAIL" | "N/A";
+  counterTrendGuard: "PASS" | "FAIL" | "N/A";
+}
+
 export interface AnalysisResult {
   recommendation: "BUY" | "SELL" | "WAIT";
   tradeType: string;
+  conviction?: string;
   score: {
     layer1: number;
     layer2: number;
     layer3: number;
     total: number;
+    threshold?: number;
     rating: string;
   };
+  votes?: {
+    layer1: LayerVotes;
+    layer2: LayerVotes;
+    layer3: LayerVotes;
+  };
+  filtersApplied?: FiltersApplied;
   entry: number;
   stopLoss: number;
   tp1: number;
@@ -45,6 +67,7 @@ export interface AnalysisResult {
     rsi: string;
     macd: string;
     stochastic: string;
+    smartMoney?: string;
     divergence: string;
     summary: string;
   };
@@ -70,10 +93,12 @@ export interface AnalysisResult {
     dataTime: string;
     marketStatus: string;
     bestTradingTime: string;
+    sessionContext?: string;
   };
   keyLevels: {
     strongResistance: number[];
     strongSupport: number[];
     dailyPivot: number;
+    fibConfluence?: string;
   };
 }
