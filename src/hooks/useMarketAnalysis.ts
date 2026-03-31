@@ -47,7 +47,8 @@ export function useMarketAnalysis() {
   // Fetch local market data file (live prices)
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch("http://88.99.64.228/XAUUSDm_Complete_Data.txt?t=" + Date.now());
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const res = await fetch(`https://${projectId}.supabase.co/functions/v1/market-data-proxy`);
       const text = await res.text();
       if (!hasValidMarketDataPayload(text)) return;
       setMarketData(parseMarketData(text));
