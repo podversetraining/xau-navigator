@@ -267,7 +267,7 @@ function hasValidTradeLevels(analysis: AnalysisRecord): boolean {
 }
 
 function deriveRecommendation(analysis: AnalysisRecord, total: number): "BUY" | "SELL" | "WAIT" {
-  if (total < 65) return "WAIT";
+  if (total < 75) return "WAIT";
 
   const layer1Trend = normalizeBias((analysis.layer1Analysis as Record<string, unknown> | undefined)?.trend);
   const layer2Momentum = normalizeBias((analysis.layer2Analysis as Record<string, unknown> | undefined)?.momentum);
