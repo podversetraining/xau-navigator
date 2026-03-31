@@ -13,6 +13,7 @@ import { SlideMultiTimeframe } from "./SlideMultiTimeframe";
 import { SlideTimingRisk } from "./SlideTimingRisk";
 import { SlideCompanyInfo } from "./SlideCompanyInfo";
 import { SlideMarketOverview } from "./SlideMarketOverview";
+import { isAnalysisCurrentForActiveSlot } from "@/lib/analysisCycle";
 
 const SLIDE_DURATION = 15000; // 15 seconds per slide
 
@@ -31,7 +32,7 @@ const SLIDES = [
 ];
 
 export function TradingDashboard() {
-  const { marketData, analysis, loading, lastUpdate, error, analyzing, runningAnalysis, nextAnalysis } = useMarketAnalysis();
+  const { marketData, analysis, loading, lastUpdate, error, runningAnalysis, nextAnalysis } = useMarketAnalysis();
   const [countdown, setCountdown] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -71,7 +72,7 @@ export function TradingDashboard() {
     if (runningAnalysis || !showAnalyzing) return;
 
     const currentVersion = lastUpdate?.toISOString() || "none";
-    const isNew = currentVersion !== versionAtStart && analysis;
+    const isNew = currentVersion !== versionAtStart && analysis && isAnalysisCurrentForActiveSlot(lastUpdate);
 
     if (isNew) {
       // Success: new data arrived
@@ -100,13 +101,21 @@ export function TradingDashboard() {
   // Sync new analysis from realtime (not during active update cycle)
   useEffect(() => {
     if (showAnalyzing || runningAnalysis || !analysis || !lastUpdate) return;
-    const currentVersion = lastUpdate.toISOString();
-    // Only accept if it's genuinely newer than what we had at cycle start
-    if (currentVersion !== versionAtStart) {
-      setDisplayAnalysis(analysis);
-      setAnalysisFailed(false);
+    const isCurrent = isAnalysisCurrentForActiveSlot(lastUpdate);
+    if (!isCurrent) {
+      setDisplayAnalysis(null);
+      return;
     }
-  }, [analysis, lastUpdate]);
+
+    setDisplayAnalysis(analysis);
+    setAnalysisFailed(false);
+  }, [analysis, lastUpdate, runningAnalysis, showAnalyzing]);
+
+  useEffect(() => {
+    if (displayAnalysis && !isAnalysisCurrentForActiveSlot(lastUpdate)) {
+      setDisplayAnalysis(null);
+    }
+  }, [countdown, displayAnalysis, lastUpdate]);
 
   // Animate progress while API is running
   useEffect(() => {
@@ -148,12 +157,10 @@ export function TradingDashboard() {
   const price = marketData[0]?.currentPrice || 0;
   const time = marketData[0]?.time || "";
 
-  // Check if analysis is stale (older than 10 minutes) — never show old data to traders
-  const isStale = lastUpdate ? (Date.now() - lastUpdate.getTime() > 10 * 60 * 1000) : false;
-  const safeAnalysis = isStale ? null : displayAnalysis;
+  const safeAnalysis = displayAnalysis && isAnalysisCurrentForActiveSlot(lastUpdate) ? displayAnalysis : null;
 
   // Error, stale, or no analysis: show "We'll be back soon" — NEVER show old/fake data
-  if (error || analysisFailed || (!safeAnalysis && !loading)) {
+  if (!showAnalyzing && (error || analysisFailed || (!safeAnalysis && !loading))) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-background overflow-hidden">
         <div className="flex-1 flex items-center justify-center">
@@ -185,7 +192,7 @@ export function TradingDashboard() {
     );
   }
 
-  if (loading && !analysis) {
+  if (!showAnalyzing && loading && !analysis) {
     return (
       <div className="h-screen flex items-center justify-center bg-background">
         <div className="text-center">
