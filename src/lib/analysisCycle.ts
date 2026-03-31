@@ -1,13 +1,17 @@
 const ANALYSIS_INTERVAL_MINUTES = 15;
 const ANALYSIS_INTERVAL_MS = ANALYSIS_INTERVAL_MINUTES * 60 * 1000;
 
+const SLOTS = [1, 16, 31, 46];
+
 export function getAnalysisSlotStart(date: Date): Date {
   const slotStart = new Date(date);
   slotStart.setSeconds(0, 0);
-
-  const flooredMinutes = Math.floor(slotStart.getMinutes() / ANALYSIS_INTERVAL_MINUTES) * ANALYSIS_INTERVAL_MINUTES;
-  slotStart.setMinutes(flooredMinutes, 0, 0);
-
+  const min = slotStart.getMinutes();
+  const slot = [...SLOTS].reverse().find(s => s <= min) ?? SLOTS[SLOTS.length - 1];
+  if (slot > min) {
+    slotStart.setHours(slotStart.getHours() - 1);
+  }
+  slotStart.setMinutes(slot, 0, 0);
   return slotStart;
 }
 
