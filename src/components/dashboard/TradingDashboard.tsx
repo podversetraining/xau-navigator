@@ -42,13 +42,28 @@ export function TradingDashboard() {
 
   // Countdown to next update
   useEffect(() => {
-    if (!nextUpdateAt) return;
-    const timer = setInterval(() => {
-      const diff = Math.max(0, nextUpdateAt.getTime() - Date.now());
+    const calcCountdown = () => {
+      let target = nextUpdateAt ? nextUpdateAt.getTime() : 0;
+      const now = Date.now();
+      // If target is in the past or not set, compute next slot dynamically
+      if (!target || target <= now) {
+        const d = new Date();
+        const min = d.getMinutes();
+        const slots = [1, 16, 31, 46];
+        const nextSlot = slots.find(s => s > min) ?? slots[0];
+        const nxt = new Date(d);
+        if (nextSlot <= min) nxt.setHours(nxt.getHours() + 1);
+        nxt.setMinutes(nextSlot, 0, 0);
+        nxt.setSeconds(0, 0);
+        target = nxt.getTime();
+      }
+      const diff = Math.max(0, target - Date.now());
       const m = Math.floor(diff / 60000);
       const s = Math.floor((diff % 60000) / 1000);
       setCountdown(`${m}:${s.toString().padStart(2, "0")}`);
-    }, 1000);
+    };
+    calcCountdown();
+    const timer = setInterval(calcCountdown, 1000);
     return () => clearInterval(timer);
   }, [nextUpdateAt]);
 
