@@ -232,6 +232,10 @@ function getSlotKey(from = new Date()): string {
   return getCurrentSlotStart(from).toISOString();
 }
 
+function isScheduledExecutionWindow(from = new Date()): boolean {
+  return SLOTS.includes(from.getMinutes() as (typeof SLOTS)[number]);
+}
+
 function getRating(total: number): string {
   if (total >= 90) return "Excellent";
   if (total >= 80) return "Strong";
@@ -363,6 +367,12 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const now = new Date();
     const slotKey = getSlotKey(now);
+    if (!isScheduledExecutionWindow(now)) {
+      console.log("Ignoring out-of-schedule invocation", now.toISOString());
+      return new Response(JSON.stringify({ success: true, skipped: true, reason: "outside_schedule", slotKey }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const dataRes = await fetch(`http://88.99.64.228/XAUUSDm_Complete_Data.txt?t=${Date.now()}`, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
