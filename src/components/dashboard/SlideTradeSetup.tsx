@@ -26,7 +26,7 @@ export function SlideTradeSetup({ analysis }: { analysis: AnalysisResult }) {
               Current market conditions do not meet the minimum confidence threshold for a trade recommendation.
             </p>
             <p className="text-dim font-data text-xs">
-              The AI system requires at least 50/100 confidence score across all three analysis layers before issuing a trade signal. Continue monitoring — conditions are updated every 5 minutes.
+              The AI system requires at least 65/100 confidence score across all three analysis layers before issuing a trade signal. Continue monitoring — conditions are updated every 15 minutes.
             </p>
           </div>
         </div>
