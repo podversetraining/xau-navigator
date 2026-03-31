@@ -159,9 +159,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const APP_URL = Deno.env.get("APP_URL") || "https://f24df3d3-4ed9-4e23-a824-77d960876447.lovableproject.com";
-    const dataRes = await fetch(`${APP_URL}/data/XAUUSDm_Complete_Data.txt?t=${Date.now()}`);
-    if (!dataRes.ok) throw new Error("Failed to fetch market data from app");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const dataRes = await fetch(`${supabaseUrl}/storage/v1/object/public/market-data/XAUUSDm_Complete_Data.txt?t=${Date.now()}`);
+    if (!dataRes.ok) throw new Error("Failed to fetch market data from storage");
     const rawData = await dataRes.text();
     if (!hasValidMarketDataPayload(rawData)) throw new Error("Market data source returned invalid HTML/auth content");
 
@@ -170,7 +170,6 @@ serve(async (req) => {
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -254,7 +253,8 @@ serve(async (req) => {
   } catch (e) {
     console.error("scheduled-analysis error:", e);
     try {
-      await supabase.from("broadcast_state").upsert({
+      const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      await sb.from("broadcast_state").upsert({
         id: "global", status: "maintenance", analysis: null,
         error: String(e), updated_at: new Date().toISOString(),
       });
