@@ -13,21 +13,30 @@ serve(async (req) => {
   }
 
   try {
-    const res = await fetch(`${DATA_URL}?t=${Date.now()}`, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "text/plain,*/*",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
-      },
-    });
-    if (!res.ok) throw new Error(`Upstream ${res.status}`);
-    const text = await res.text();
-    return new Response(text, {
-      headers: { ...corsHeaders, "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: String(e) }), {
+    let lastErr: unknown;
+    for (let i = 0; i < 3; i++) {
+      try {
+        const res = await fetch(`${DATA_URL}?t=${Date.now()}`, {
+          signal: AbortSignal.timeout(15000),
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept": "text/plain,*/*",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+            "Connection": "close",
+          },
+        });
+        if (!res.ok) throw new Error(`Upstream ${res.status}`);
+        const text = await res.text();
+        return new Response(text, {
+          headers: { ...corsHeaders, "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
+        });
+      } catch (e) {
+        lastErr = e;
+        await new Promise(r => setTimeout(r, 500 * (i + 1)));
+      }
+    }
+    return new Response(JSON.stringify({ error: String(lastErr) }), {
       status: 502,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
