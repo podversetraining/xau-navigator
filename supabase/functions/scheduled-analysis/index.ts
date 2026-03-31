@@ -52,13 +52,14 @@ function isUsableAnalysis(value: unknown): boolean {
 function enforceThreshold(analysis: AnalysisRecord): AnalysisRecord {
   const score = analysis.score as { total?: number; rating?: string } | undefined;
   const total = typeof score?.total === "number" ? score.total : 0;
-  if (total < 65 && analysis.recommendation !== "WAIT") {
+  if (total < 75 && analysis.recommendation !== "WAIT") {
     return {
       ...analysis,
       recommendation: "WAIT",
+      conviction: "No Trade",
       entry: 0, stopLoss: 0, tp1: 0, tp2: 0, tp3: 0,
       riskReward: 0, lotSize: 0,
-      score: { ...score, rating: "Insufficient" },
+      score: { ...score, rating: "No Trade", threshold: 75 },
     };
   }
   return analysis;
