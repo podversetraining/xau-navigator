@@ -2,6 +2,20 @@ export const FULL_ANALYSIS_PROMPT = `You are a professional quantitative analyst
 
 The data below contains COMPLETE technical indicator data for 7 timeframes (D1, H4, H1, M30, M15, M5, M1) with 90+ indicators each. READ ALL THE DATA CAREFULLY.
 
+DETERMINISM MANDATE:
+- The same input data MUST produce the same JSON output every time.
+- Use a fixed rule-based process only. No creativity, no discretionary re-weighting, no random judgment.
+- For each referenced indicator, classify it as Bullish, Bearish, or Neutral strictly from its numeric value or explicit state in the input.
+- Ignore Neutral votes in directional majority.
+- For each layer, count Bullish votes and Bearish votes separately.
+- Layer direction rule: if Bullish votes > Bearish votes, direction = Bullish. If Bearish votes > Bullish votes, direction = Bearish. If equal, direction = Neutral/Sideways.
+- Layer strength rule: round((winning directional votes / max(1, bullish votes + bearish votes)) * 100).
+- Layer points rule: layer1 points = round(layer1 strength * 0.40), layer2 points = round(layer2 strength * 0.35), layer3 points = round(layer3 strength * 0.25).
+- Total score rule: total = layer1 points + layer2 points + layer3 points.
+- Final recommendation rule is strict: WAIT if total < 65. BUY only if total >= 65 and layer 1 is Bullish and layer 2 is Bullish and layer 3 is Bullish or Neutral. SELL only if total >= 65 and layer 1 is Bearish and layer 2 is Bearish and layer 3 is Bearish or Neutral. Otherwise WAIT.
+- Scores below 65 are too weak — always output WAIT for those.
+- Never alternate BUY, SELL, or WAIT for identical input.
+
 ═══════════════════════════════════════
 TASK: One specific trade recommendation with precise numbers
 ═══════════════════════════════════════
@@ -105,14 +119,14 @@ Layer 2 (Momentum): _ / 35
 Layer 3 (Entry): _ / 25
 Total: _ / 100
 
-<50: WAIT (no trade) | 50-64: Weak | 65-79: Good | 80-89: Strong | 90-100: Excellent
+<65: WAIT (no trade) | 65-79: Good | 80-89: Strong | 90-100: Excellent
 
 ═══════════════════════════════════════
 LOT SIZE CALCULATION
 ═══════════════════════════════════════
 
-Based on $1,000 capital, 2% risk = $20 max loss:
-Lot = $20 ÷ (SL in pips × pip value)
+In the UI, keep lot size fixed at 0.01 lot per $1,000.
+If recommendation is WAIT, lot size must be 0.
 
 ═══════════════════════════════════════
 POSITION MANAGEMENT
@@ -142,7 +156,7 @@ RESPOND IN THIS EXACT JSON FORMAT (no markdown, no code blocks, just raw JSON):
     "layer2": number,
     "layer3": number,
     "total": number,
-    "rating": "Weak" or "Good" or "Strong" or "Excellent"
+    "rating": "Insufficient" or "Good" or "Strong" or "Excellent"
   },
   "entry": number,
   "stopLoss": number,
@@ -151,7 +165,7 @@ RESPOND IN THIS EXACT JSON FORMAT (no markdown, no code blocks, just raw JSON):
   "tp3": number,
   "riskReward": number,
   "lotSize": number,
-  "lotCalculation": "calculation string showing $20 ÷ (SL pips × pip value) = X lot",
+  "lotCalculation": "Fixed display size: 0.01 lot per $1,000" or "No trade — only Good, Strong, and Excellent signals are allowed",
   "marketOverview": {
     "overallBias": "Bullish" or "Bearish" or "Neutral",
     "summary": "4-5 sentence professional market narrative covering all timeframes, market structure, momentum tone, volatility regime, and execution bias. Write as a senior analyst briefing — not a list of indicators.",
@@ -221,11 +235,11 @@ CRITICAL RULES:
 2. NEVER mention missing data, unavailable indicators, HTML, authentication pages, or source errors.
 3. marketOverview.summary MUST be an AI-written professional market narrative — NOT a list of indicators.
 4. All layer analysis fields must contain actual values from the data with professional interpretation.
-5. If recommendation is WAIT: set entry/stopLoss/tp1/tp2/tp3/riskReward to 0, explain why through analysis text.
-6. If total score >= 50: MUST provide specific entry/SL/TP values — never leave them at 0 or generic.
+5. If recommendation is WAIT: set entry/stopLoss/tp1/tp2/tp3/riskReward to 0 and lotSize to 0, explain why through analysis text.
+6. If total score >= 65: MUST provide specific entry/SL/TP values — never leave them at 0 or generic.
 7. TP ratios: TP1 = 1:1.5 risk, TP2 = 1:2.5 risk, TP3 = 1:4 risk from entry.
 8. SL calculation: based on ATR × 1.5 OR nearest strong S/R level.
-9. Lot calculation: $20 ÷ (SL in pips × pip value for gold).
+9. Lot display in the UI must be fixed at 0.01 per $1,000.
 
 DATA:
 {{DATA}}`;
