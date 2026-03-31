@@ -3,6 +3,7 @@ import { parseMarketData, type TimeframeData } from "@/lib/parseData";
 import type { AnalysisResult } from "@/types/analysis";
 import { supabase } from "@/integrations/supabase/client";
 import { hasValidMarketDataPayload, isUsableAnalysis } from "@/lib/analysisValidation";
+import { getNextAnalysisTime, isAnalysisCurrentForActiveSlot } from "@/lib/analysisCycle";
 
 export function useMarketAnalysis() {
   const [marketData, setMarketData] = useState<TimeframeData[]>([]);
@@ -52,7 +53,10 @@ export function useMarketAnalysis() {
         throw dbError;
       }
 
-      const latestValid = data?.find((row) => isUsableAnalysis(row.analysis));
+      const latestValid = data?.find((row) => {
+        if (!isUsableAnalysis(row.analysis)) return false;
+        return isAnalysisCurrentForActiveSlot(new Date(row.created_at));
+      });
 
       if (latestValid) {
         const validAnalysis = latestValid.analysis as unknown as AnalysisResult;
@@ -76,13 +80,7 @@ export function useMarketAnalysis() {
 
   // Calculate next analysis time (next 5-min mark)
   const updateNextAnalysis = useCallback(() => {
-    const now = new Date();
-    const next = new Date(now);
-    const mins = now.getMinutes();
-    const nextMin = Math.ceil((mins + 1) / 5) * 5;
-    next.setMinutes(nextMin, 0, 0);
-    if (next <= now) next.setMinutes(next.getMinutes() + 5);
-    setNextAnalysis(next);
+    setNextAnalysis(getNextAnalysisTime());
   }, []);
 
   // Initial load: fetch data + load latest analysis from DB
@@ -153,6 +151,8 @@ export function useMarketAnalysis() {
 
   const runAnalysis = useCallback(async (providedRawData?: string) => {
     setLoading(true);
+    setAnalysis(null);
+    setLastUpdate(null);
     setError(null);
     setRunningAnalysis(true);
 
@@ -177,6 +177,7 @@ export function useMarketAnalysis() {
       if (fnError) throw fnError;
       if (result?.rate_limited) {
         console.warn("Rate limited by AI, will retry next cycle");
+        setError("We'll be back shortly");
         setLoading(false);
         setRunningAnalysis(false);
         setAnalyzing(false);
@@ -185,6 +186,7 @@ export function useMarketAnalysis() {
       }
       if (result?.error) {
         console.warn("Analysis soft error:", result.error);
+        setError("We'll be back shortly");
         setLoading(false);
         setRunningAnalysis(false);
         setAnalyzing(false);
@@ -196,15 +198,27 @@ export function useMarketAnalysis() {
         setAnalysis(result);
         setLastUpdate(new Date());
         setError(null);
+        setLoading(false);
+        setAnalyzing(false);
+        updateNextAnalysis();
+        return;
       }
+
+      console.warn("Analysis returned unusable payload");
+      setError("We'll be back shortly");
+      setLoading(false);
+      setAnalyzing(false);
+      updateNextAnalysis();
     } catch (err) {
       console.error("Analysis error:", err);
-      setError(null);
+      setError("We'll be back shortly");
       setLoading(false);
+      setAnalyzing(false);
+      updateNextAnalysis();
     } finally {
       setRunningAnalysis(false);
     }
-  }, [rawData]);
+  }, [rawData, updateNextAnalysis]);
 
   useEffect(() => {
     if (loading || analysis || !hasValidMarketDataPayload(rawData) || recoveryRunStartedRef.current) {
