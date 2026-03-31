@@ -13,11 +13,18 @@ serve(async (req) => {
   }
 
   try {
-    const res = await fetch(`${DATA_URL}?t=${Date.now()}`);
+    const res = await fetch(`${DATA_URL}?t=${Date.now()}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "text/plain,*/*",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+      },
+    });
     if (!res.ok) throw new Error(`Upstream ${res.status}`);
     const text = await res.text();
     return new Response(text, {
-      headers: { ...corsHeaders, "Content-Type": "text/plain", "Cache-Control": "no-cache" },
+      headers: { ...corsHeaders, "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
     });
   } catch (e) {
     return new Response(JSON.stringify({ error: String(e) }), {
