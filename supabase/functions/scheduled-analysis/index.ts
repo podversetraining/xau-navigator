@@ -49,6 +49,21 @@ function isUsableAnalysis(value: unknown): boolean {
   );
 }
 
+function enforceThreshold(analysis: AnalysisRecord): AnalysisRecord {
+  const score = analysis.score as { total?: number; rating?: string } | undefined;
+  const total = typeof score?.total === "number" ? score.total : 0;
+  if (total < 65 && analysis.recommendation !== "WAIT") {
+    return {
+      ...analysis,
+      recommendation: "WAIT",
+      entry: 0, stopLoss: 0, tp1: 0, tp2: 0, tp3: 0,
+      riskReward: 0, lotSize: 0,
+      score: { ...score, rating: "Insufficient" },
+    };
+  }
+  return analysis;
+}
+
 const FULL_PROMPT = `You are a professional quantitative analyst specializing in Gold trading (XAUUSD) using a multi-layer analysis system.
 
 The data below contains COMPLETE technical indicator data for 7 timeframes (D1, H4, H1, M30, M15, M5, M1) with 90+ indicators each. READ ALL THE DATA CAREFULLY.
@@ -63,7 +78,8 @@ DETERMINISM MANDATE:
 - Layer strength rule: round((winning directional votes / max(1, bullish votes + bearish votes)) * 100).
 - Layer points rule: layer1 points = round(layer1 strength * 0.40), layer2 points = round(layer2 strength * 0.35), layer3 points = round(layer3 strength * 0.25).
 - Total score rule: total = layer1 points + layer2 points + layer3 points.
-- Final recommendation rule is strict: WAIT if total < 50. BUY only if layer 1 is Bullish and layer 2 is Bullish and layer 3 is Bullish or Neutral. SELL only if layer 1 is Bearish and layer 2 is Bearish and layer 3 is Bearish or Neutral. Otherwise WAIT.
+- Final recommendation rule is strict: WAIT if total < 65. BUY only if total >= 65 and layer 1 is Bullish and layer 2 is Bullish and layer 3 is Bullish or Neutral. SELL only if total >= 65 and layer 1 is Bearish and layer 2 is Bearish and layer 3 is Bearish or Neutral. Otherwise WAIT.
+- Scores below 65 are too weak — always output WAIT for those.
 - Never alternate BUY, SELL, or WAIT for identical input.
 
 CORE PRINCIPLE:
@@ -82,13 +98,13 @@ LAYER 3: Entry Zone & Confirmation (Weight: 25%) — From M15, M5, M1
 Analyze: BB (upper/mid/lower, width), Keltner channels, Channel_Position, Envelopes, Pivot Points (R1-R3, S1-S3), SuperTrend as dynamic S/R, PSAR, Fractals, ATR/ATR_21 for SL (1.5-2x ATR), Volatility_Ratio, MFI_14, Volume vs Avg, Relative_Volume, Volume_ROC.
 
 SCORING: Layer1: _/40 | Layer2: _/35 | Layer3: _/25 | Total: _/100
-<50: WAIT | 50-64: Weak | 65-79: Good | 80-89: Strong | 90-100: Excellent
+<65: WAIT (no trade issued) | 65-79: Good | 80-89: Strong | 90-100: Excellent
 
 RESPOND IN THIS EXACT JSON FORMAT (no markdown, no code blocks, just raw JSON):
 {
   "recommendation": "BUY" or "SELL" or "WAIT",
   "tradeType": "Scalping" or "Intraday" or "Swing",
-  "score": {"layer1": number, "layer2": number, "layer3": number, "total": number, "rating": "Weak/Good/Strong/Excellent"},
+  "score": {"layer1": number, "layer2": number, "layer3": number, "total": number, "rating": "Good/Strong/Excellent"},
   "entry": number,
   "stopLoss": number,
   "tp1": number,
@@ -164,7 +180,7 @@ CRITICAL RULES:
 2. NEVER mention missing data, unavailable indicators, HTML, or source errors.
 3. marketOverview.summary = professional narrative, NOT indicator list.
 4. If WAIT: set entry/SL/TP/riskReward to 0, explain via analysis text.
-5. If score >= 50: MUST provide specific entry/SL/TP values.
+5. If score >= 65: MUST provide specific entry/SL/TP values.
 6. TP ratios: TP1=1:1.5, TP2=1:2.5, TP3=1:4 from entry.
 7. SL: ATR x 1.5 OR nearest strong S/R.
 8. Lot: $20 / (SL pips x pip value).
@@ -359,7 +375,8 @@ serve(async (req) => {
       });
     }
 
-    const normalizedAnalysis = attachMeta(parsed as AnalysisRecord, inputHash);
+    const enforcedAnalysis = enforceThreshold(parsed as AnalysisRecord);
+    const normalizedAnalysis = attachMeta(enforcedAnalysis, inputHash);
 
     await supabase.from("gold_analysis").insert({ analysis: normalizedAnalysis });
 
