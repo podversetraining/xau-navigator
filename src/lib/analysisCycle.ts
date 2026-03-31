@@ -16,8 +16,13 @@ export function getAnalysisSlotStart(date: Date): Date {
 }
 
 export function getNextAnalysisTime(from = new Date()): Date {
-  const slotStart = getAnalysisSlotStart(from);
-  return new Date(slotStart.getTime() + ANALYSIS_INTERVAL_MS);
+  const min = from.getMinutes();
+  const nextSlot = SLOTS.find(s => s > min) ?? SLOTS[0];
+  const nxt = new Date(from);
+  if (nextSlot <= min) nxt.setHours(nxt.getHours() + 1);
+  nxt.setMinutes(nextSlot, 0, 0);
+  nxt.setSeconds(0, 0);
+  return nxt;
 }
 
 export function isAnalysisCurrentForActiveSlot(lastUpdate: Date | null | undefined, now = new Date()): boolean {
