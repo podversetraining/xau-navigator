@@ -335,7 +335,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: MODEL_NAME,
-        max_tokens: 8192,
+        max_completion_tokens: 8192,
         temperature: 0,
         messages: [
           { role: "system", content: "You are a professional quantitative gold trading analyst. You MUST analyze all the provided technical indicator data carefully and cite actual values. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data or source errors. Same input must produce the same output." },
