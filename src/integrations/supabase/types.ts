@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      broadcast_state: {
+        Row: {
+          analysis: Json | null
+          current_slide: number
+          error: string | null
+          id: string
+          next_update_at: string | null
+          slide_started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          analysis?: Json | null
+          current_slide?: number
+          error?: string | null
+          id?: string
+          next_update_at?: string | null
+          slide_started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          analysis?: Json | null
+          current_slide?: number
+          error?: string | null
+          id?: string
+          next_update_at?: string | null
+          slide_started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gold_analysis: {
         Row: {
           analysis: Json
