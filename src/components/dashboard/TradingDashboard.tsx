@@ -39,6 +39,7 @@ export function TradingDashboard() {
 
   const { status, analysis, error, nextUpdateAt, slideStartedAt, updatedAt } = broadcast;
 
+
   // Countdown to next update
   useEffect(() => {
     if (!nextUpdateAt) return;
