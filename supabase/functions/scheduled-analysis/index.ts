@@ -253,7 +253,8 @@ serve(async (req) => {
   } catch (e) {
     console.error("scheduled-analysis error:", e);
     try {
-      await supabase.from("broadcast_state").upsert({
+      const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      await sb.from("broadcast_state").upsert({
         id: "global", status: "maintenance", analysis: null,
         error: String(e), updated_at: new Date().toISOString(),
       });
