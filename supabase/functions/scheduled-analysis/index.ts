@@ -365,9 +365,11 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+    const force = (body as Record<string, unknown>).force === true;
     const now = new Date();
     const slotKey = getSlotKey(now);
-    if (!isScheduledExecutionWindow(now)) {
+    if (!force && !isScheduledExecutionWindow(now)) {
       console.log("Ignoring out-of-schedule invocation", now.toISOString());
       return new Response(JSON.stringify({ success: true, skipped: true, reason: "outside_schedule", slotKey }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
