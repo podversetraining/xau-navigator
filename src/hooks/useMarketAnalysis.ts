@@ -1,244 +1,111 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { parseMarketData, type TimeframeData } from "@/lib/parseData";
 import type { AnalysisResult } from "@/types/analysis";
 import { supabase } from "@/integrations/supabase/client";
-import { hasValidMarketDataPayload, isUsableAnalysis } from "@/lib/analysisValidation";
-import { getNextAnalysisTime, isAnalysisCurrentForActiveSlot } from "@/lib/analysisCycle";
+import { hasValidMarketDataPayload } from "@/lib/analysisValidation";
+
+export type BroadcastStatus = "live" | "updating" | "maintenance";
+
+export interface BroadcastState {
+  status: BroadcastStatus;
+  analysis: AnalysisResult | null;
+  error: string | null;
+  currentSlide: number;
+  slideStartedAt: Date;
+  nextUpdateAt: Date | null;
+  updatedAt: Date;
+}
+
+const INITIAL: BroadcastState = {
+  status: "maintenance",
+  analysis: null,
+  error: null,
+  currentSlide: 0,
+  slideStartedAt: new Date(),
+  nextUpdateAt: null,
+  updatedAt: new Date(),
+};
+
+function rowToBroadcast(row: Record<string, unknown>): BroadcastState {
+  return {
+    status: (row.status as BroadcastStatus) || "maintenance",
+    analysis: row.analysis as AnalysisResult | null,
+    error: (row.error as string) || null,
+    currentSlide: (row.current_slide as number) || 0,
+    slideStartedAt: new Date((row.slide_started_at as string) || Date.now()),
+    nextUpdateAt: row.next_update_at ? new Date(row.next_update_at as string) : null,
+    updatedAt: new Date((row.updated_at as string) || Date.now()),
+  };
+}
 
 export function useMarketAnalysis() {
   const [marketData, setMarketData] = useState<TimeframeData[]>([]);
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [broadcast, setBroadcast] = useState<BroadcastState>(INITIAL);
   const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [runningAnalysis, setRunningAnalysis] = useState(false);
-  const [nextAnalysis, setNextAnalysis] = useState<Date | null>(null);
-  const [rawData, setRawData] = useState<string>("");
-  const lastTriggeredSlotRef = useRef<string | null>(null);
-  const recoveryRunStartedRef = useRef(false);
 
-  // Fetch local market data file (updates every minute from platform)
+  // Fetch local market data file (live prices)
   const fetchData = useCallback(async () => {
     try {
       const res = await fetch("/data/XAUUSDm_Complete_Data.txt?t=" + Date.now());
       const text = await res.text();
-      if (!hasValidMarketDataPayload(text)) {
-        console.error("Market data source returned invalid content");
-        return;
-      }
-      setRawData(text);
-      const parsed = parseMarketData(text);
-      setMarketData(parsed);
+      if (!hasValidMarketDataPayload(text)) return;
+      setMarketData(parseMarketData(text));
     } catch (err) {
       console.error("Failed to fetch data:", err);
     }
   }, []);
 
-  // Load latest analysis from database
-  const loadLatestAnalysis = useCallback(async () => {
+  // Load broadcast state from database
+  const loadBroadcast = useCallback(async () => {
     try {
-      const { data, error: dbError } = await supabase
-        .from("gold_analysis")
-        .select("analysis, created_at")
-        .order("created_at", { ascending: false })
-        .limit(20);
+      const { data, error } = await supabase
+        .from("broadcast_state")
+        .select("*")
+        .eq("id", "global")
+        .single();
 
-      if (dbError) {
-        if (dbError.code === "PGRST116") {
-          setError("No analysis available yet. Waiting for the first 5-minute analysis...");
-          setLoading(false);
-          return;
-        }
-        throw dbError;
-      }
-
-      const latestValid = data?.find((row) => {
-        if (!isUsableAnalysis(row.analysis)) return false;
-        return isAnalysisCurrentForActiveSlot(new Date(row.created_at));
-      });
-
-      if (latestValid) {
-        const validAnalysis = latestValid.analysis as unknown as AnalysisResult;
-        setAnalysis(validAnalysis);
-        setLastUpdate(new Date(latestValid.created_at));
-        setError(null);
-      } else if (!data?.length) {
-        setError("No analysis available yet. Waiting for the first 5-minute analysis...");
-      } else {
-        setAnalysis(null);
-        setLastUpdate(null);
-        setError(null);
-      }
+      if (error) throw error;
+      if (data) setBroadcast(rowToBroadcast(data as Record<string, unknown>));
     } catch (err) {
-      console.error("Failed to load analysis:", err);
-      setError("Failed to load analysis from database");
+      console.error("Failed to load broadcast state:", err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Calculate next analysis time (next 5-min mark)
-  const updateNextAnalysis = useCallback(() => {
-    setNextAnalysis(getNextAnalysisTime());
-  }, []);
-
-  // Initial load: fetch data + load latest analysis from DB
+  // Initial load
   useEffect(() => {
     fetchData();
-    loadLatestAnalysis();
-    updateNextAnalysis();
-  }, [fetchData, loadLatestAnalysis, updateNextAnalysis]);
+    loadBroadcast();
+  }, [fetchData, loadBroadcast]);
 
-  // Refresh local data every 1 second (prices & indicators live)
+  // Refresh prices every second
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchData();
-
-      if (!nextAnalysis) {
-        setAnalyzing(false);
-        return;
-      }
-
-      const diff = nextAnalysis.getTime() - Date.now();
-      setAnalyzing(diff <= 10000 && diff > 0);
-
-      if (diff <= 0 && hasValidMarketDataPayload(rawData)) {
-        const slotKey = nextAnalysis.toISOString();
-        if (lastTriggeredSlotRef.current !== slotKey) {
-          lastTriggeredSlotRef.current = slotKey;
-          void runAnalysis(rawData);
-        }
-      }
-    }, 1000);
-
+    const interval = setInterval(fetchData, 1000);
     return () => clearInterval(interval);
-  }, [fetchData, nextAnalysis, rawData]);
+  }, [fetchData]);
 
-  // Subscribe to realtime updates on gold_analysis table
+  // Subscribe to broadcast_state realtime updates
   useEffect(() => {
     const channel = supabase
-      .channel("gold-analysis-realtime")
+      .channel("broadcast-state-realtime")
       .on(
         "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "gold_analysis",
-        },
+        { event: "*", schema: "public", table: "broadcast_state", filter: "id=eq.global" },
         (payload) => {
-          const newRow = payload.new as { analysis: unknown; created_at: string };
-          if (!isUsableAnalysis(newRow.analysis)) {
-            console.warn("Ignoring invalid analysis payload from realtime update");
-            return;
-          }
-
-          const validAnalysis = newRow.analysis as unknown as AnalysisResult;
-          setAnalysis(validAnalysis);
-          setLastUpdate(new Date(newRow.created_at));
-          setError(null);
+          const row = payload.new as Record<string, unknown>;
+          setBroadcast(rowToBroadcast(row));
           setLoading(false);
-          setAnalyzing(false);
-          updateNextAnalysis();
         }
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [updateNextAnalysis]);
-
-  const runAnalysis = useCallback(async (providedRawData?: string) => {
-    setLoading(true);
-    setAnalysis(null);
-    setLastUpdate(null);
-    setError(null);
-    setRunningAnalysis(true);
-
-    try {
-      let text = providedRawData && hasValidMarketDataPayload(providedRawData) ? providedRawData : rawData;
-
-      if (!hasValidMarketDataPayload(text)) {
-        const res = await fetch("/data/XAUUSDm_Complete_Data.txt?t=" + Date.now());
-        text = await res.text();
-      }
-
-      if (!hasValidMarketDataPayload(text)) {
-        throw new Error("Invalid market data payload");
-      }
-
-      const { buildAnalysisPrompt } = await import("@/lib/analysisPrompt");
-      const prompt = buildAnalysisPrompt(text);
-      const { data: result, error: fnError } = await supabase.functions.invoke("analyze-gold", {
-        body: { prompt, rawData: text },
-      });
-
-      if (fnError) throw fnError;
-      if (result?.rate_limited) {
-        console.warn("Rate limited by AI, will retry next cycle");
-        setError("We'll be back shortly");
-        setLoading(false);
-        setRunningAnalysis(false);
-        setAnalyzing(false);
-        updateNextAnalysis();
-        return;
-      }
-      if (result?.error) {
-        console.warn("Analysis soft error:", result.error);
-        setError("We'll be back shortly");
-        setLoading(false);
-        setRunningAnalysis(false);
-        setAnalyzing(false);
-        updateNextAnalysis();
-        return;
-      }
-
-      if (isUsableAnalysis(result)) {
-        setAnalysis(result);
-        setLastUpdate(new Date());
-        setError(null);
-        setLoading(false);
-        setAnalyzing(false);
-        updateNextAnalysis();
-        return;
-      }
-
-      console.warn("Analysis returned unusable payload");
-      setError("We'll be back shortly");
-      setLoading(false);
-      setAnalyzing(false);
-      updateNextAnalysis();
-    } catch (err) {
-      console.error("Analysis error:", err);
-      setError("We'll be back shortly");
-      setLoading(false);
-      setAnalyzing(false);
-      updateNextAnalysis();
-    } finally {
-      setRunningAnalysis(false);
-    }
-  }, [rawData, updateNextAnalysis]);
-
-  useEffect(() => {
-    if (loading || analysis || !hasValidMarketDataPayload(rawData) || recoveryRunStartedRef.current) {
-      return;
-    }
-
-    recoveryRunStartedRef.current = true;
-    void runAnalysis(rawData);
-  }, [analysis, loading, rawData, runAnalysis]);
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   return {
     marketData,
-    analysis,
+    broadcast,
     loading,
-    lastUpdate,
-    error,
-    rawData,
-    analyzing,
-    runningAnalysis,
-    nextAnalysis,
-    runAnalysis,
   };
 }

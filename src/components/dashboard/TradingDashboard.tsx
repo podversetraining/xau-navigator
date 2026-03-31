@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMarketAnalysis } from "@/hooks/useMarketAnalysis";
 import { DashboardHeader } from "./DashboardHeader";
@@ -13,9 +13,8 @@ import { SlideMultiTimeframe } from "./SlideMultiTimeframe";
 import { SlideTimingRisk } from "./SlideTimingRisk";
 import { SlideCompanyInfo } from "./SlideCompanyInfo";
 import { SlideMarketOverview } from "./SlideMarketOverview";
-import { isAnalysisCurrentForActiveSlot } from "@/lib/analysisCycle";
 
-const SLIDE_DURATION = 15000; // 15 seconds per slide
+const SLIDE_DURATION = 15000;
 
 const SLIDES = [
   { id: "overview", label: "OVERVIEW" },
@@ -32,94 +31,34 @@ const SLIDES = [
 ];
 
 export function TradingDashboard() {
-  const { marketData, analysis, loading, lastUpdate, error, runningAnalysis, nextAnalysis } = useMarketAnalysis();
+  const { marketData, broadcast, loading } = useMarketAnalysis();
   const [countdown, setCountdown] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [showAnalyzing, setShowAnalyzing] = useState(false);
   const [analyzeProgress, setAnalyzeProgress] = useState(0);
-  const [displayAnalysis, setDisplayAnalysis] = useState<typeof analysis>(null);
-  // Track the lastUpdate timestamp that was active when analysis started
-  const [versionAtStart, setVersionAtStart] = useState<string>("none");
-  // If analysis failed, block old data from re-appearing
-  const [analysisFailed, setAnalysisFailed] = useState(false);
 
-  // Countdown to next analysis
+  const { status, analysis, error, nextUpdateAt, slideStartedAt, updatedAt } = broadcast;
+
+  // Countdown to next update
   useEffect(() => {
-    if (!nextAnalysis) return;
+    if (!nextUpdateAt) return;
     const timer = setInterval(() => {
-      const diff = Math.max(0, nextAnalysis.getTime() - Date.now());
+      const diff = Math.max(0, nextUpdateAt.getTime() - Date.now());
       const m = Math.floor(diff / 60000);
       const s = Math.floor((diff % 60000) / 1000);
       setCountdown(`${m}:${s.toString().padStart(2, "0")}`);
     }, 1000);
     return () => clearInterval(timer);
-  }, [nextAnalysis]);
+  }, [nextUpdateAt]);
 
-  // When analysis starts → hard-clear everything
+  // Reset progress when entering updating state
   useEffect(() => {
-    if (runningAnalysis) {
-      setDisplayAnalysis(null);
-      setShowAnalyzing(true);
-      setAnalyzeProgress(0);
-      setAnalysisFailed(false);
-      setVersionAtStart(lastUpdate?.toISOString() || "none");
-    }
-  }, [runningAnalysis]);
+    if (status === "updating") setAnalyzeProgress(0);
+  }, [status]);
 
-  // When analysis finishes → check result
+  // Animate progress while updating
   useEffect(() => {
-    if (runningAnalysis || !showAnalyzing) return;
-
-    const currentVersion = lastUpdate?.toISOString() || "none";
-    const isNew = currentVersion !== versionAtStart && analysis && isAnalysisCurrentForActiveSlot(lastUpdate);
-
-    if (isNew) {
-      // Success: new data arrived
-      setAnalyzeProgress(100);
-      const timer = setTimeout(() => {
-        setDisplayAnalysis(analysis);
-        setAnalysisFailed(false);
-        setCurrentSlide(0);
-        setProgress(0);
-        setShowAnalyzing(false);
-        setAnalyzeProgress(0);
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
-
-    // Failed: no new data — show maintenance screen
-    const fallbackTimer = setTimeout(() => {
-      setDisplayAnalysis(null);
-      setAnalysisFailed(true);
-      setShowAnalyzing(false);
-      setAnalyzeProgress(0);
-    }, 1500);
-    return () => clearTimeout(fallbackTimer);
-  }, [runningAnalysis, showAnalyzing, analysis, lastUpdate, versionAtStart]);
-
-  // Sync new analysis from realtime (not during active update cycle)
-  useEffect(() => {
-    if (showAnalyzing || runningAnalysis || !analysis || !lastUpdate) return;
-    const isCurrent = isAnalysisCurrentForActiveSlot(lastUpdate);
-    if (!isCurrent) {
-      setDisplayAnalysis(null);
-      return;
-    }
-
-    setDisplayAnalysis(analysis);
-    setAnalysisFailed(false);
-  }, [analysis, lastUpdate, runningAnalysis, showAnalyzing]);
-
-  useEffect(() => {
-    if (displayAnalysis && !isAnalysisCurrentForActiveSlot(lastUpdate)) {
-      setDisplayAnalysis(null);
-    }
-  }, [countdown, displayAnalysis, lastUpdate]);
-
-  // Animate progress while API is running
-  useEffect(() => {
-    if (!showAnalyzing || !runningAnalysis) return;
+    if (status !== "updating") return;
     const interval = setInterval(() => {
       setAnalyzeProgress(prev => {
         if (prev >= 90) return Math.min(prev + 0.1, 92);
@@ -129,38 +68,85 @@ export function TradingDashboard() {
       });
     }, 300);
     return () => clearInterval(interval);
-  }, [showAnalyzing, runningAnalysis]);
+  }, [status]);
 
-  // Auto-advance slides
+  // Auto-advance slides — synchronized from server slideStartedAt
   useEffect(() => {
-    if (!displayAnalysis) return;
-
-    const startTime = Date.now();
+    if (status !== "live" || !analysis) return;
+    const startTime = slideStartedAt.getTime();
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
-      const pct = (elapsed % SLIDE_DURATION) / SLIDE_DURATION * 100;
+      const slideIndex = Math.floor(elapsed / SLIDE_DURATION) % SLIDES.length;
+      const pct = ((elapsed % SLIDE_DURATION) / SLIDE_DURATION) * 100;
+      setCurrentSlide(slideIndex);
       setProgress(pct);
-
-      if (elapsed % SLIDE_DURATION < 50) {
-        setCurrentSlide(prev => (prev + 1) % SLIDES.length);
-      }
     }, 50);
-
     return () => clearInterval(interval);
-  }, [displayAnalysis, currentSlide]);
-
-  // Reset progress on slide change
-  useEffect(() => {
-    setProgress(0);
-  }, [currentSlide]);
+  }, [status, analysis, slideStartedAt]);
 
   const price = marketData[0]?.currentPrice || 0;
   const time = marketData[0]?.time || "";
 
-  const safeAnalysis = displayAnalysis && isAnalysisCurrentForActiveSlot(lastUpdate) ? displayAnalysis : null;
+  // UPDATING — show full-screen progress
+  if (status === "updating") {
+    const phase = analyzeProgress >= 80
+      ? "Finalizing recommendation..."
+      : analyzeProgress >= 60
+        ? "Calculating entry points & risk levels..."
+        : analyzeProgress >= 40
+          ? "Processing momentum & timing signals..."
+          : analyzeProgress >= 20
+            ? "Analyzing trend across 7 timeframes..."
+            : "Reading market data & indicators...";
 
-  // Error, stale, or no analysis: show "We'll be back soon" — NEVER show old/fake data
-  if (!showAnalyzing && (error || analysisFailed || (!safeAnalysis && !loading))) {
+    return (
+      <div className="h-screen flex flex-col bg-background overflow-hidden">
+        <DashboardHeader price={price} time={time} loading={true} />
+        <div className="flex-1 flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-lg mx-auto text-center px-8"
+          >
+            <motion.div
+              animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="w-20 h-20 mx-auto mb-8 rounded-full flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--primary) / 0.05))", border: "1px solid hsl(var(--primary) / 0.3)" }}
+            >
+              <span className="text-3xl">⚡</span>
+            </motion.div>
+            <h2 className="font-display text-xl tracking-widest text-gold mb-2">UPDATING ANALYSIS</h2>
+            <p className="text-muted-foreground text-sm font-body mb-8">{phase}</p>
+            <div className="w-full h-3 bg-secondary rounded-full overflow-hidden mb-3">
+              <motion.div
+                className="h-full rounded-full"
+                animate={{ width: `${Math.max(0, Math.min(100, analyzeProgress))}%` }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                style={{ background: "linear-gradient(90deg, hsl(var(--primary) / 0.6), hsl(var(--primary)))", boxShadow: "0 0 16px hsl(var(--primary) / 0.4)" }}
+              />
+            </div>
+            <span className="text-gold font-display text-lg tracking-wider">{Math.round(analyzeProgress)}%</span>
+            <div className="mt-8 grid grid-cols-3 gap-3">
+              {[
+                { label: "TREND", done: analyzeProgress >= 40 },
+                { label: "MOMENTUM", done: analyzeProgress >= 60 },
+                { label: "ENTRY", done: analyzeProgress >= 80 },
+              ].map((item) => (
+                <div key={item.label} className={`rounded-lg px-3 py-2 text-xs font-display tracking-wider transition-all duration-500 ${item.done ? "bg-gold/10 text-gold border border-gold/30" : "bg-secondary text-muted-foreground border border-border"}`}>
+                  {item.done ? "✓ " : "○ "}{item.label}
+                </div>
+              ))}
+            </div>
+            <p className="text-muted-foreground text-xs mt-6 font-data">ARAB GLOBAL SECURITIES — AI Quantitative Analysis</p>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // MAINTENANCE / error / no analysis / loading — "We'll Be Back Shortly"
+  if (status === "maintenance" || error || !analysis || loading) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-background overflow-hidden">
         <div className="flex-1 flex items-center justify-center">
@@ -180,7 +166,7 @@ export function TradingDashboard() {
             <h1 className="font-display text-3xl text-primary mb-4">ARAB GLOBAL SECURITIES</h1>
             <p className="text-foreground font-body text-xl mb-2">We'll Be Back Shortly</p>
             <p className="text-muted-foreground text-sm mb-6">Updating analysis — we never display stale data to protect your capital</p>
-            {nextAnalysis && (
+            {nextUpdateAt && (
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card">
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                 <span className="text-muted-foreground text-sm font-mono">Next update: {countdown}</span>
@@ -192,120 +178,16 @@ export function TradingDashboard() {
     );
   }
 
-  if (!showAnalyzing && loading && !analysis) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <h1 className="font-display text-2xl text-primary mb-4">ARAB GLOBAL SECURITIES</h1>
-          <div className="flex items-center gap-3 justify-center">
-            <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
-            <p className="text-foreground font-body text-lg">Analyzing 7 timeframes with 90+ indicators...</p>
-          </div>
-          <p className="text-muted-foreground text-sm mt-2">AI quantitative analysis in progress</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Full-screen analysis update screen
-  if (showAnalyzing) {
-    const phase = analyzeProgress >= 100
-      ? "ANALYSIS COMPLETE ✓"
-      : analyzeProgress >= 80
-        ? "Finalizing recommendation..."
-        : analyzeProgress >= 60
-          ? "Calculating entry points & risk levels..."
-          : analyzeProgress >= 40
-            ? "Processing momentum & timing signals..."
-            : analyzeProgress >= 20
-              ? "Analyzing trend across 7 timeframes..."
-              : "Reading market data & indicators...";
-
-    return (
-      <div className="h-screen flex flex-col bg-background overflow-hidden">
-        <DashboardHeader price={price} time={time} loading={true} />
-        <div className="flex-1 flex items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-lg mx-auto text-center px-8"
-          >
-            {/* Pulsing icon */}
-            <motion.div
-              animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-20 h-20 mx-auto mb-8 rounded-full flex items-center justify-center"
-              style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--primary) / 0.05))", border: "1px solid hsl(var(--primary) / 0.3)" }}
-            >
-              <span className="text-3xl">
-                {analyzeProgress >= 100 ? "✓" : "⚡"}
-              </span>
-            </motion.div>
-
-            <h2 className="font-display text-xl tracking-widest text-gold mb-2">
-              {analyzeProgress >= 100 ? "UPDATE COMPLETE" : "UPDATING ANALYSIS"}
-            </h2>
-            <p className="text-muted-foreground text-sm font-body mb-8">{phase}</p>
-
-            {/* Progress bar */}
-            <div className="w-full h-3 bg-secondary rounded-full overflow-hidden mb-3">
-              <motion.div
-                className="h-full rounded-full"
-                animate={{ width: `${Math.max(0, Math.min(100, analyzeProgress))}%` }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                style={{
-                  background: analyzeProgress >= 100
-                    ? "linear-gradient(90deg, hsl(var(--success)), hsl(142 72% 55%))"
-                    : "linear-gradient(90deg, hsl(var(--primary) / 0.6), hsl(var(--primary)))",
-                  boxShadow: analyzeProgress >= 100
-                    ? "0 0 20px hsl(var(--success) / 0.5)"
-                    : "0 0 16px hsl(var(--primary) / 0.4)",
-                }}
-              />
-            </div>
-            <span className="text-gold font-display text-lg tracking-wider">
-              {Math.round(analyzeProgress)}%
-            </span>
-
-            {/* Indicators being analyzed */}
-            <div className="mt-8 grid grid-cols-3 gap-3">
-              {[
-                { label: "TREND", done: analyzeProgress >= 40 },
-                { label: "MOMENTUM", done: analyzeProgress >= 60 },
-                { label: "ENTRY", done: analyzeProgress >= 80 },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className={`rounded-lg px-3 py-2 text-xs font-display tracking-wider transition-all duration-500 ${
-                    item.done
-                      ? "bg-gold/10 text-gold border border-gold/30"
-                      : "bg-secondary text-muted-foreground border border-border"
-                  }`}
-                >
-                  {item.done ? "✓ " : "○ "}{item.label}
-                </div>
-              ))}
-            </div>
-
-            <p className="text-muted-foreground text-xs mt-6 font-data">
-              ARAB GLOBAL SECURITIES — AI Quantitative Analysis
-            </p>
-          </motion.div>
-        </div>
-      </div>
-    );
-  }
-
+  // LIVE — show dashboard with synced slides
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
-      <DashboardHeader price={price} time={time} loading={loading} />
+      <DashboardHeader price={price} time={time} loading={false} />
 
       {/* Slide Navigation */}
       <div className="flex items-center px-8 py-2 border-b border-border gap-1">
         {SLIDES.map((slide, i) => (
           <button
             key={slide.id}
-            onClick={() => setCurrentSlide(i)}
             className={`px-3 py-1.5 rounded text-xs font-display tracking-wider transition-all ${
               i === currentSlide
                 ? "bg-gold/20 text-gold border border-gold/30"
@@ -316,11 +198,9 @@ export function TradingDashboard() {
           </button>
         ))}
         <div className="ml-auto flex items-center gap-3">
-          {lastUpdate && (
-            <span className="text-dim text-xs font-data">
-              Last: {lastUpdate.toLocaleTimeString()}
-            </span>
-          )}
+          <span className="text-dim text-xs font-data">
+            Last: {updatedAt.toLocaleTimeString()}
+          </span>
           <span className="text-dim text-xs font-data">
             Next analysis: {countdown}
           </span>
@@ -350,7 +230,7 @@ export function TradingDashboard() {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             className="absolute inset-0"
           >
-          {safeAnalysis && renderSlide(currentSlide, safeAnalysis, marketData)}
+            {renderSlide(currentSlide, analysis, marketData)}
           </motion.div>
         </AnimatePresence>
       </div>
