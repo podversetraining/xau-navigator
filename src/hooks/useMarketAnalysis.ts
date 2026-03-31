@@ -47,7 +47,7 @@ export function useMarketAnalysis() {
   // Fetch local market data file (live prices)
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch("/data/XAUUSDm_Complete_Data.txt?t=" + Date.now());
+      const res = await fetch("http://88.99.64.228/XAUUSDm_Complete_Data.txt?t=" + Date.now());
       const text = await res.text();
       if (!hasValidMarketDataPayload(text)) return;
       setMarketData(parseMarketData(text));
