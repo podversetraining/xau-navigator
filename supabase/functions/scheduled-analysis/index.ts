@@ -238,10 +238,10 @@ function isScheduledExecutionWindow(from = new Date()): boolean {
 }
 
 function getRating(total: number): string {
-  if (total >= 90) return "Excellent";
-  if (total >= 80) return "Strong";
-  if (total >= 65) return "Good";
-  return "Insufficient";
+  if (total >= 95) return "High Conviction";
+  if (total >= 85) return "Strong";
+  if (total >= 75) return "Confirmed";
+  return "No Trade";
 }
 
 function extractMetaString(value: unknown, key: string): string | null {
