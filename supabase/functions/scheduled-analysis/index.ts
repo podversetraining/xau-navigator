@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const BROADCAST_ID = "global";
-const MODEL_NAME = "claude-sonnet-4-6";
+const MODEL_NAME = "gpt-5.1";
 const SLOTS = [1, 16, 31, 46] as const;
 
 const invalidSourcePatterns = [/<!doctype html/i, /<html/i, /authentication page/i, /sign in/i, /login/i, /auth/i];
@@ -261,8 +261,8 @@ serve(async (req) => {
 
     const prompt = FULL_PROMPT.replace("{{DATA}}", rawData);
 
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
 
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -327,19 +327,20 @@ serve(async (req) => {
       slide_started_at: new Date().toISOString(),
     });
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: MODEL_NAME,
         max_tokens: 8192,
         temperature: 0,
-        system: "You are a professional quantitative gold trading analyst. You MUST analyze all the provided technical indicator data carefully and cite actual values. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data or source errors. Same input must produce the same output.",
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          { role: "system", content: "You are a professional quantitative gold trading analyst. You MUST analyze all the provided technical indicator data carefully and cite actual values. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data or source errors. Same input must produce the same output." },
+          { role: "user", content: prompt },
+        ],
       }),
     });
 
@@ -358,7 +359,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const content = data.content?.[0]?.text || "";
+    const content = data.choices?.[0]?.message?.content || "";
 
     let parsed;
     try {
