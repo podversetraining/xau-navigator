@@ -1,4 +1,4 @@
-const ANALYSIS_INTERVAL_MINUTES = 5;
+const ANALYSIS_INTERVAL_MINUTES = 15;
 const ANALYSIS_INTERVAL_MS = ANALYSIS_INTERVAL_MINUTES * 60 * 1000;
 
 export function getAnalysisSlotStart(date: Date): Date {
