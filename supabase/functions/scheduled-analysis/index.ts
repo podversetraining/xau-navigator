@@ -190,6 +190,123 @@ DATA:
 
 type AnalysisRecord = Record<string, unknown>;
 
+type BroadcastRow = {
+  status?: string;
+  analysis?: unknown;
+  slide_started_at?: string;
+  updated_at?: string;
+};
+
+function toFiniteNumber(value: unknown, fallback = 0): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return fallback;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function normalizeBias(value: unknown): "Bullish" | "Bearish" | "Neutral" {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  if (!normalized) return "Neutral";
+  if (normalized.includes("bull") || normalized.includes("buy")) return "Bullish";
+  if (normalized.includes("bear") || normalized.includes("sell")) return "Bearish";
+  return "Neutral";
+}
+
+function getCurrentSlotStart(from = new Date()): Date {
+  const slotStart = new Date(from);
+  slotStart.setSeconds(0, 0);
+  const min = slotStart.getMinutes();
+  const slot = [...SLOTS].reverse().find((value) => value <= min) ?? SLOTS[SLOTS.length - 1];
+  if (slot > min) slotStart.setHours(slotStart.getHours() - 1);
+  slotStart.setMinutes(slot, 0, 0);
+  return slotStart;
+}
+
+function getSlotKey(from = new Date()): string {
+  return getCurrentSlotStart(from).toISOString();
+}
+
+function getRating(total: number): string {
+  if (total >= 90) return "Excellent";
+  if (total >= 80) return "Strong";
+  if (total >= 65) return "Good";
+  return "Insufficient";
+}
+
+function extractMetaString(value: unknown, key: string): string | null {
+  if (!value || typeof value !== "object") return null;
+  const meta = (value as Record<string, unknown>)._meta;
+  if (!meta || typeof meta !== "object") return null;
+  const resolved = (meta as Record<string, unknown>)[key];
+  return typeof resolved === "string" ? resolved : null;
+}
+
+function extractSlotKey(value: unknown): string | null {
+  return extractMetaString(value, "slotKey");
+}
+
+function hasValidTradeLevels(analysis: AnalysisRecord): boolean {
+  const entry = toFiniteNumber(analysis.entry);
+  const stopLoss = toFiniteNumber(analysis.stopLoss);
+  const tp1 = toFiniteNumber(analysis.tp1);
+  const tp2 = toFiniteNumber(analysis.tp2);
+  const tp3 = toFiniteNumber(analysis.tp3);
+
+  return entry > 0 && stopLoss > 0 && tp1 > 0 && tp2 > 0 && tp3 > 0 && entry !== stopLoss;
+}
+
+function deriveRecommendation(analysis: AnalysisRecord, total: number): "BUY" | "SELL" | "WAIT" {
+  if (total < 65) return "WAIT";
+
+  const layer1Trend = normalizeBias((analysis.layer1Analysis as Record<string, unknown> | undefined)?.trend);
+  const layer2Momentum = normalizeBias((analysis.layer2Analysis as Record<string, unknown> | undefined)?.momentum);
+  const overallBias = normalizeBias((analysis.marketOverview as Record<string, unknown> | undefined)?.overallBias);
+
+  if (layer1Trend === "Bullish" && layer2Momentum === "Bullish" && overallBias !== "Bearish") return "BUY";
+  if (layer1Trend === "Bearish" && layer2Momentum === "Bearish" && overallBias !== "Bullish") return "SELL";
+
+  return "WAIT";
+}
+
+function normalizeAnalysis(analysis: AnalysisRecord): AnalysisRecord {
+  const rawScore = (analysis.score as Record<string, unknown> | undefined) ?? {};
+  const layer1 = clamp(Math.round(toFiniteNumber(rawScore.layer1)), 0, 40);
+  const layer2 = clamp(Math.round(toFiniteNumber(rawScore.layer2)), 0, 35);
+  const layer3 = clamp(Math.round(toFiniteNumber(rawScore.layer3)), 0, 25);
+  const total = layer1 + layer2 + layer3;
+  const recommendation = deriveRecommendation(analysis, total);
+  const tradable = recommendation !== "WAIT" && hasValidTradeLevels(analysis);
+
+  return {
+    ...analysis,
+    recommendation: tradable ? recommendation : "WAIT",
+    score: {
+      ...rawScore,
+      layer1,
+      layer2,
+      layer3,
+      total,
+      rating: getRating(total),
+    },
+    entry: tradable ? toFiniteNumber(analysis.entry) : 0,
+    stopLoss: tradable ? toFiniteNumber(analysis.stopLoss) : 0,
+    tp1: tradable ? toFiniteNumber(analysis.tp1) : 0,
+    tp2: tradable ? toFiniteNumber(analysis.tp2) : 0,
+    tp3: tradable ? toFiniteNumber(analysis.tp3) : 0,
+    riskReward: tradable ? toFiniteNumber(analysis.riskReward) : 0,
+    lotSize: tradable ? 0.01 : 0,
+    lotCalculation: tradable
+      ? "Fixed display size: 0.01 lot per $1,000"
+      : "No trade — only Good, Strong, and Excellent signals are allowed",
+  };
+}
+
 function getNextScheduledTime(from = new Date()): string {
   const min = from.getMinutes();
   const nextSlot = SLOTS.find((slot) => slot > min) ?? SLOTS[0];
@@ -206,14 +323,10 @@ async function sha256Base64(value: string): Promise<string> {
 }
 
 function extractInputHash(value: unknown): string | null {
-  if (!value || typeof value !== "object") return null;
-  const meta = (value as Record<string, unknown>)._meta;
-  if (!meta || typeof meta !== "object") return null;
-  const inputHash = (meta as Record<string, unknown>).inputHash;
-  return typeof inputHash === "string" ? inputHash : null;
+  return extractMetaString(value, "inputHash");
 }
 
-function attachMeta(analysis: AnalysisRecord, inputHash: string): AnalysisRecord {
+function attachMeta(analysis: AnalysisRecord, inputHash: string, slotKey: string): AnalysisRecord {
   const existingMeta = analysis._meta;
   const safeMeta = existingMeta && typeof existingMeta === "object" ? existingMeta as Record<string, unknown> : {};
 
@@ -222,6 +335,7 @@ function attachMeta(analysis: AnalysisRecord, inputHash: string): AnalysisRecord
     _meta: {
       ...safeMeta,
       inputHash,
+      slotKey,
       model: MODEL_NAME,
       generatedAt: new Date().toISOString(),
     },
@@ -247,6 +361,8 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const now = new Date();
+    const slotKey = getSlotKey(now);
     const dataRes = await fetch(`http://88.99.64.228/XAUUSDm_Complete_Data.txt?t=${Date.now()}`, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -273,22 +389,47 @@ serve(async (req) => {
 
     const { data: currentBroadcast } = await supabase
       .from("broadcast_state")
-      .select("status, analysis, slide_started_at")
+      .select("status, analysis, slide_started_at, updated_at")
       .eq("id", BROADCAST_ID)
-      .maybeSingle();
+      .maybeSingle<BroadcastRow>();
 
     const currentAnalysis = currentBroadcast?.analysis;
+    if (
+      currentBroadcast?.status === "updating" &&
+      currentBroadcast.updated_at &&
+      getSlotKey(new Date(currentBroadcast.updated_at)) === slotKey
+    ) {
+      console.log("Analysis already running for current slot", slotKey);
+      return new Response(JSON.stringify({ success: true, pending: true, slotKey }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (
+      currentBroadcast?.status === "live" &&
+      currentAnalysis &&
+      extractSlotKey(currentAnalysis) === slotKey &&
+      isUsableAnalysis(currentAnalysis)
+    ) {
+      console.log("Reused current broadcast analysis for slot", slotKey);
+      return new Response(JSON.stringify({ success: true, cached: true, slotKey }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (
       currentBroadcast?.status === "live" &&
       currentAnalysis &&
       extractInputHash(currentAnalysis) === inputHash &&
       isUsableAnalysis(currentAnalysis)
     ) {
+      const normalizedCurrent = attachMeta(normalizeAnalysis(currentAnalysis as AnalysisRecord), inputHash, slotKey);
       await setBroadcast(supabase, {
         status: "live",
-        analysis: currentAnalysis,
+        analysis: normalizedCurrent,
         error: null,
-        slide_started_at: currentBroadcast.slide_started_at,
+        current_slide: 0,
+        slide_started_at: new Date().toISOString(),
       });
       console.log("Reused current broadcast analysis for identical market snapshot");
       return new Response(JSON.stringify({ success: true, cached: true }), {
@@ -305,9 +446,10 @@ serve(async (req) => {
 
     const cachedAnalysis = latestCached?.analysis;
     if (cachedAnalysis && extractInputHash(cachedAnalysis) === inputHash && isUsableAnalysis(cachedAnalysis)) {
+      const normalizedCached = attachMeta(normalizeAnalysis(cachedAnalysis as AnalysisRecord), inputHash, slotKey);
       await setBroadcast(supabase, {
         status: "live",
-        analysis: cachedAnalysis,
+        analysis: normalizedCached,
         error: null,
         current_slide: 0,
         slide_started_at: new Date().toISOString(),
@@ -338,7 +480,7 @@ serve(async (req) => {
         model: MODEL_NAME,
         max_tokens: 8192,
         temperature: 0,
-        system: "You are a professional quantitative gold trading analyst. You MUST analyze all the provided technical indicator data carefully and cite actual values. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data or source errors. Same input must produce the same output.",
+        system: "You are a professional quantitative gold trading analyst. You MUST analyze all the provided technical indicator data carefully and cite actual values. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data or source errors. Same input must produce the same output. Reject weak signals below 65/100. Only Good, Strong, and Excellent signals can become trades. Use a fixed display lot size of 0.01 per $1,000 for valid trades.",
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -382,8 +524,8 @@ serve(async (req) => {
       });
     }
 
-    const enforcedAnalysis = enforceThreshold(parsed as AnalysisRecord);
-    const normalizedAnalysis = attachMeta(enforcedAnalysis, inputHash);
+    const enforcedAnalysis = normalizeAnalysis(enforceThreshold(parsed as AnalysisRecord));
+    const normalizedAnalysis = attachMeta(enforcedAnalysis, inputHash, slotKey);
 
     await supabase.from("gold_analysis").insert({ analysis: normalizedAnalysis });
 
