@@ -177,6 +177,12 @@ serve(async (req) => {
     console.log("Starting scheduled gold analysis...");
     console.log("Data length:", rawData.length, "chars");
 
+    // Set broadcast to UPDATING
+    await supabase.from("broadcast_state").upsert({
+      id: "global", status: "updating", error: null, current_slide: 0,
+      slide_started_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+    });
+
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -195,8 +201,12 @@ serve(async (req) => {
     if (!response.ok) {
       const t = await response.text();
       console.error("AI API error:", response.status, t);
+      await supabase.from("broadcast_state").upsert({
+        id: "global", status: "maintenance", analysis: null,
+        error: "AI service unavailable", updated_at: new Date().toISOString(),
+      });
       return new Response(JSON.stringify({ error: "AI API error", status: response.status }), {
-        status: 500,
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -216,22 +226,39 @@ serve(async (req) => {
     }
 
     if (!isUsableAnalysis(parsed)) {
-      throw new Error("AI returned an invalid analysis payload");
+      await supabase.from("broadcast_state").upsert({
+        id: "global", status: "maintenance", analysis: null,
+        error: "Quality check failed", updated_at: new Date().toISOString(),
+      });
+      return new Response(JSON.stringify({ error: "Quality failed" }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const { error: dbError } = await supabase.from("gold_analysis").insert({ analysis: parsed });
+    await supabase.from("gold_analysis").insert({ analysis: parsed });
 
-    if (dbError) {
-      console.error("DB insert error:", dbError);
-    } else {
-      console.log("Analysis saved successfully");
-    }
+    const now2 = new Date(), nxt = new Date(now2);
+    nxt.setMinutes(Math.ceil((now2.getMinutes() + 1) / 5) * 5, 0, 0);
+    if (nxt <= now2) nxt.setMinutes(nxt.getMinutes() + 5);
+
+    await supabase.from("broadcast_state").upsert({
+      id: "global", status: "live", analysis: parsed, error: null,
+      current_slide: 0, slide_started_at: new Date().toISOString(),
+      next_update_at: nxt.toISOString(), updated_at: new Date().toISOString(),
+    });
+    console.log("Broadcast set to LIVE");
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("scheduled-analysis error:", e);
+    try {
+      await supabase.from("broadcast_state").upsert({
+        id: "global", status: "maintenance", analysis: null,
+        error: String(e), updated_at: new Date().toISOString(),
+      });
+    } catch {}
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
