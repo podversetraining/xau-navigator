@@ -478,7 +478,7 @@ serve(async (req) => {
         model: MODEL_NAME,
         max_tokens: 8192,
         temperature: 0,
-        system: "You are a professional quantitative gold trading analyst. You MUST analyze all the provided technical indicator data carefully and cite actual values. Always respond with valid JSON only, no markdown formatting, no code blocks. Just raw JSON. Never mention missing data or source errors. Same input must produce the same output. Reject weak signals below 65/100. Only Good, Strong, and Excellent signals can become trades. Use a fixed display lot size of 0.01 per $1,000 for valid trades.",
+        system: "You are an institutional-grade quantitative gold trading analyst. You MUST analyze all provided technical indicator data carefully and cite actual values. Always respond with valid JSON only, no markdown, no code blocks. Same input must produce the same output. Minimum threshold is 75/100. Conviction tiers: No Trade (<75), Confirmed (75-84), Strong (85-94), High Conviction (95+). Fixed lot size 0.01 per $1,000. Report votes and all 5 false-signal filters truthfully.",
         messages: [{ role: "user", content: prompt }],
       }),
     });
