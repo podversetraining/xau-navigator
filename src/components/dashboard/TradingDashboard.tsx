@@ -14,6 +14,7 @@ import { SlideMultiTimeframe } from "./SlideMultiTimeframe";
 import { SlideTimingRisk } from "./SlideTimingRisk";
 import { SlideCompanyInfo } from "./SlideCompanyInfo";
 import { SlideMarketOverview } from "./SlideMarketOverview";
+import { SlideSMC } from "./SlideSMC";
 
 const SLIDE_DURATION = 15000;
 const VALID_ANALYSIS_MINUTES = new Set([1, 16, 31, 46]);
