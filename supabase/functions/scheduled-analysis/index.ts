@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const BROADCAST_ID = "global";
-const MODEL_NAME = "claude-sonnet-4-6";
+const MODEL_NAME = "gpt-4.1";
 const SLOTS = [1, 16, 31, 46] as const;
 
 const invalidSourcePatterns = [/<!doctype html/i, /<html/i, /authentication page/i, /sign in/i, /login/i, /auth/i];
