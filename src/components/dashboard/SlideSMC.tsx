@@ -13,19 +13,23 @@ export function SlideSMC() {
   }, []);
 
   return (
-    <div className="h-full w-full overflow-hidden">
-      {error ? (
-        <div className="h-full flex items-center justify-center">
+    <div className="h-full flex flex-col p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-2 h-8 rounded-full bg-primary" />
+        <h2 className="font-display text-xl tracking-widest text-primary">SMC — SMART MONEY CONCEPTS</h2>
+      </div>
+      <div className="flex-1 flex items-center justify-center bg-card rounded-xl border border-border overflow-hidden">
+        {error ? (
           <p className="text-muted-foreground text-sm">Failed to load chart image</p>
-        </div>
-      ) : (
-        <img
-          src={imgSrc}
-          alt="SMC Chart Analysis"
-          className="w-full h-full object-cover"
-          onError={() => setError(true)}
-        />
-      )}
+        ) : (
+          <img
+            src={imgSrc}
+            alt="SMC Chart Analysis"
+            className="max-w-full max-h-full object-contain"
+            onError={() => setError(true)}
+          />
+        )}
+      </div>
     </div>
   );
 }
