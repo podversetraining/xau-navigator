@@ -25,7 +25,7 @@ export function SlideSMC() {
           <img
             src={imgSrc}
             alt="SMC Chart Analysis"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain"
             onError={() => setError(true)}
           />
         )}
