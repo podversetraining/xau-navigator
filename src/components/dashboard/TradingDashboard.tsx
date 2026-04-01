@@ -30,6 +30,7 @@ const SLIDES = [
   { id: "ichimoku", label: "ICHIMOKU" },
   { id: "matrix", label: "MATRIX" },
   { id: "timing", label: "TIMING" },
+  { id: "smc", label: "SMC" },
   { id: "company", label: "ABOUT US" },
 ];
 
