@@ -5,8 +5,8 @@ export function SlideSMC() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    // Add timestamp to bust cache since image updates
-    const update = () => setImgSrc(`http://88.99.64.228/ChartShot.png?t=${Date.now()}`);
+    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+    const update = () => setImgSrc(`https://${projectId}.supabase.co/functions/v1/chart-proxy?t=${Date.now()}`);
     update();
     const interval = setInterval(update, 5000);
     return () => clearInterval(interval);
