@@ -14,6 +14,7 @@ import { SlideMultiTimeframe } from "./SlideMultiTimeframe";
 import { SlideTimingRisk } from "./SlideTimingRisk";
 import { SlideCompanyInfo } from "./SlideCompanyInfo";
 import { SlideMarketOverview } from "./SlideMarketOverview";
+import { SlideSMC } from "./SlideSMC";
 
 const SLIDE_DURATION = 15000;
 const VALID_ANALYSIS_MINUTES = new Set([1, 16, 31, 46]);
@@ -29,6 +30,7 @@ const SLIDES = [
   { id: "ichimoku", label: "ICHIMOKU" },
   { id: "matrix", label: "MATRIX" },
   { id: "timing", label: "TIMING" },
+  { id: "smc", label: "SMC" },
   { id: "company", label: "ABOUT US" },
 ];
 
@@ -272,7 +274,8 @@ function renderSlide(index: number, analysis: any, data: any[]) {
     case 7: return <SlideIchimoku data={data} />;
     case 8: return <SlideMultiTimeframe data={data} />;
     case 9: return <SlideTimingRisk analysis={analysis} data={data} />;
-    case 10: return <SlideCompanyInfo />;
+    case 10: return <SlideSMC />;
+    case 11: return <SlideCompanyInfo />;
     default: return null;
   }
 }
