@@ -23,14 +23,16 @@ const SLIDES = [
   { id: "overview", label: "OVERVIEW" },
   { id: "market", label: "MARKET" },
   { id: "trend", label: "TREND" },
+  { id: "smc1", label: "SMC" },
   { id: "momentum", label: "MOMENTUM" },
   { id: "entry", label: "ENTRY" },
   { id: "trade", label: "TRADE SETUP" },
+  { id: "smc2", label: "SMC" },
   { id: "fibonacci", label: "FIBONACCI" },
   { id: "ichimoku", label: "ICHIMOKU" },
   { id: "matrix", label: "MATRIX" },
+  { id: "smc3", label: "SMC" },
   { id: "timing", label: "TIMING" },
-  { id: "smc", label: "SMC" },
   { id: "company", label: "ABOUT US" },
 ];
 
