@@ -265,19 +265,22 @@ export function TradingDashboard() {
 }
 
 function renderSlide(index: number, analysis: any, data: any[]) {
-  switch (index) {
-    case 0: return <SlideOverview analysis={analysis} data={data} />;
-    case 1: return <SlideMarketOverview analysis={analysis} data={data} />;
-    case 2: return <SlideTrendAnalysis analysis={analysis} data={data} />;
-    case 3: return <SlideMomentum analysis={analysis} data={data} />;
-    case 4: return <SlideEntryPoint analysis={analysis} data={data} />;
-    case 5: return <SlideTradeSetup analysis={analysis} />;
-    case 6: return <SlideFibonacci data={data} />;
-    case 7: return <SlideIchimoku data={data} />;
-    case 8: return <SlideMultiTimeframe data={data} />;
-    case 9: return <SlideTimingRisk analysis={analysis} data={data} />;
-    case 10: return <SlideSMC />;
-    case 11: return <SlideCompanyInfo />;
+  const slideId = SLIDES[index]?.id;
+  switch (slideId) {
+    case "overview": return <SlideOverview analysis={analysis} data={data} />;
+    case "market": return <SlideMarketOverview analysis={analysis} data={data} />;
+    case "trend": return <SlideTrendAnalysis analysis={analysis} data={data} />;
+    case "momentum": return <SlideMomentum analysis={analysis} data={data} />;
+    case "entry": return <SlideEntryPoint analysis={analysis} data={data} />;
+    case "trade": return <SlideTradeSetup analysis={analysis} />;
+    case "fibonacci": return <SlideFibonacci data={data} />;
+    case "ichimoku": return <SlideIchimoku data={data} />;
+    case "matrix": return <SlideMultiTimeframe data={data} />;
+    case "timing": return <SlideTimingRisk analysis={analysis} data={data} />;
+    case "smc1":
+    case "smc2":
+    case "smc3": return <SlideSMC />;
+    case "company": return <SlideCompanyInfo />;
     default: return null;
   }
 }
